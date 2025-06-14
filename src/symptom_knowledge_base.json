@@ -89,7 +89,7 @@
     },
     {
       "symptom_name": "skin rash",
-      "keywords": ["rash", "hives", "itchy skin", "boils", "blisters"],
+      "keywords": ["rash", "hives", "itchy skin", "boils", "blisters", "khujli", "चकत्ते"],
       "follow_up_questions": [
         "Where on your body is the rash located?",
         "What does the rash look like (e.g., red spots, bumps, blisters)? Is it itchy or painful?",
@@ -164,7 +164,7 @@
     },
     {
       "symptom_name": "body aches",
-      "keywords": ["muscle pain", "sore muscles", "aches and pains"],
+      "keywords": ["muscle pain", "sore muscles", "badan dard", "全身酸痛", "aches and pains"],
       "follow_up_questions": [
         "Where in your body are you experiencing the aches? Is it all over or in specific areas?",
         "How would you describe the pain - dull, sharp, throbbing?",
@@ -265,6 +265,141 @@
         "Severe toothache, especially if accompanied by fever, facial swelling, or difficulty opening your mouth or swallowing, needs urgent dental or medical attention as it could be a sign of infection.",
         "Persistent toothache, even if mild, should be checked by a dentist to prevent worsening problems like cavities or gum disease.",
         "Good oral hygiene, including regular brushing and flossing, can help prevent many dental problems."
+      ]
+    },
+    {
+      "symptom_name": "dizziness",
+      "keywords": ["lightheaded", "vertigo", "feeling faint", "chakkar aana", "unsteady"],
+      "follow_up_questions": [
+        "When did the dizziness start? Is it constant or does it come and go?",
+        "Do you feel like the room is spinning (vertigo) or more like you might faint?",
+        "Have you had any recent injuries, illnesses, or changes in medication?",
+        "Are you experiencing other symptoms like headache, chest pain, or palpitations?"
+      ],
+      "basic_triage_points": [
+        "Sudden, severe dizziness with chest pain, shortness of breath, or fainting is an emergency.",
+        "Dizziness with weakness, numbness, or difficulty speaking could be a sign of stroke—seek immediate help.",
+        "Mild, occasional dizziness can be caused by dehydration or standing up too quickly, but persistent symptoms should be evaluated."
+      ]
+    },
+    {
+      "symptom_name": "eye redness",
+      "keywords": ["red eyes", "conjunctivitis", "pink eye", "eye irritation", "aankh laal hona"],
+      "follow_up_questions": [
+        "Is the redness in one eye or both?",
+        "Are you experiencing any pain, discharge, or changes in vision?",
+        "Have you had any recent eye injuries or exposure to chemicals?",
+        "Do you have any other symptoms like fever or sensitivity to light?"
+      ],
+      "basic_triage_points": [
+        "Eye redness with severe pain, vision changes, or sensitivity to light is an emergency.",
+        "Discharge from the eye, especially if yellow or green, may indicate infection and should be evaluated.",
+        "Mild redness without pain or vision changes is often due to irritation or allergies."
+      ]
+    },
+    {
+      "symptom_name": "frequent urination",
+      "keywords": ["urinating often", "peeing a lot", "polyuria", "baar baar peshab aana"],
+      "follow_up_questions": [
+        "How many times are you urinating in a day and night?",
+        "Are you experiencing pain, burning, or blood in your urine?",
+        "Do you have increased thirst, fever, or lower abdominal pain?",
+        "Have you recently increased your fluid intake or started any new medications?"
+      ],
+      "basic_triage_points": [
+        "Frequent urination with pain, burning, or blood may indicate a urinary tract infection—see a doctor.",
+        "Sudden onset of frequent urination with fever, back pain, or vomiting is an emergency.",
+        "If accompanied by increased thirst and weight loss, diabetes should be considered."
+      ]
+    },
+    {
+      "symptom_name": "swelling",
+      "keywords": ["swollen", "edema", "puffy", "sujan", "swelling up"],
+      "follow_up_questions": [
+        "Where is the swelling located?",
+        "Is the swelling sudden or gradual?",
+        "Is it painful, red, or warm to touch?",
+        "Do you have any other symptoms like fever, shortness of breath, or weight gain?"
+      ],
+      "basic_triage_points": [
+        "Sudden swelling of the face, lips, or tongue with difficulty breathing is an emergency.",
+        "Swelling with redness, pain, or fever may indicate infection and needs prompt evaluation.",
+        "Persistent swelling, especially in the legs, may be related to heart, kidney, or liver problems and should be discussed with a doctor."
+      ]
+    },
+    {
+      "symptom_name": "palpitations",
+      "keywords": ["heart racing", "irregular heartbeat", "fluttering", "dhadkan tez", "palpitations"],
+      "follow_up_questions": [
+        "When did you first notice the palpitations?",
+        "How long do they last and how often do they occur?",
+        "Are they associated with chest pain, dizziness, or fainting?",
+        "Do you have a history of heart disease or thyroid problems?"
+      ],
+      "basic_triage_points": [
+        "Palpitations with chest pain, fainting, or severe shortness of breath are an emergency.",
+        "Frequent or persistent palpitations should be evaluated by a doctor.",
+        "Occasional palpitations without other symptoms are often benign but should be monitored."
+      ]
+    },
+    {
+      "symptom_name": "nosebleed",
+      "keywords": ["bleeding nose", "epistaxis", "naak se khoon", "nose bleed"],
+      "follow_up_questions": [
+        "How often do you get nosebleeds and how long do they last?",
+        "Is the bleeding from one nostril or both?",
+        "Are you taking any blood thinners or have a history of bleeding disorders?",
+        "Have you had any recent injury to your nose or face?"
+      ],
+      "basic_triage_points": [
+        "Heavy or prolonged nosebleeds (more than 20 minutes) require medical attention.",
+        "Nosebleeds after a head injury or with other bleeding (gums, urine, stool) are concerning.",
+        "Most minor nosebleeds can be managed at home by pinching the nose and leaning forward."
+      ]
+    },
+    {
+      "symptom_name": "blurred vision",
+      "keywords": ["blurry vision", "vision loss", "cannot see clearly", "dhundhla dikhna"],
+      "follow_up_questions": [
+        "Is the blurred vision in one eye or both?",
+        "Did it start suddenly or gradually?",
+        "Are you experiencing pain, redness, or discharge from the eye?",
+        "Do you have any other symptoms like headache, weakness, or loss of balance?"
+      ],
+      "basic_triage_points": [
+        "Sudden loss of vision or blurred vision with pain is an emergency.",
+        "Blurred vision with headache, weakness, or speech difficulty could be a sign of stroke.",
+        "Gradual changes in vision should be evaluated by an eye specialist."
+      ]
+    },
+    {
+      "symptom_name": "back pain",
+      "keywords": ["lower back pain", "upper back pain", "backache", "peeth dard"],
+      "follow_up_questions": [
+        "Where exactly is the pain located (upper, middle, or lower back)?",
+        "Did the pain start after an injury or lifting something heavy?",
+        "Is the pain constant or does it come and go?",
+        "Are you experiencing numbness, tingling, or weakness in your legs?"
+      ],
+      "basic_triage_points": [
+        "Back pain with loss of bladder or bowel control, or weakness/numbness in legs, is an emergency.",
+        "Severe pain after a fall or injury should be evaluated promptly.",
+        "Most mild back pain improves with rest and gentle movement, but persistent pain should be checked."
+      ]
+    },
+    {
+      "symptom_name": "loss of appetite",
+      "keywords": ["not feeling hungry", "anorexia", "bhookh na lagna"],
+      "follow_up_questions": [
+        "How long have you had a reduced appetite?",
+        "Have you lost weight unintentionally?",
+        "Are you experiencing other symptoms like nausea, vomiting, or abdominal pain?",
+        "Do you have any history of chronic illness or recent stress?"
+      ],
+      "basic_triage_points": [
+        "Loss of appetite with significant weight loss, fever, or persistent vomiting needs medical evaluation.",
+        "Sudden loss of appetite in children or elderly should be discussed with a doctor.",
+        "Short-term loss of appetite is common with minor illnesses but should resolve as you recover."
       ]
     }
   ]
