@@ -1,0 +1,101 @@
+{
+  "test_cases": [
+    {
+      "input_text": "मुझे बुखार और सिरदर्द है",
+      "language": "hi-IN",
+      "expected_intent": "SYMPTOM_QUERY",
+      "expected_entities": [
+        {"text": "बुखार", "type": "symptom"},
+        {"text": "सिरदर्द", "type": "symptom"}
+      ],
+      "is_emergency": false
+    },
+    {
+      "input_text": "What is diabetes?",
+      "language": "en-IN",
+      "expected_intent": "GENERAL_QUERY",
+      "expected_entities": [
+        {"text": "diabetes", "type": "condition"}
+      ],
+      "is_emergency": false
+    },
+    {
+      "input_text": "chest pain emergency help",
+      "language": "en-IN",
+      "expected_intent": "EMERGENCY",
+      "expected_entities": [
+        {"text": "chest pain", "type": "symptom"}
+      ],
+      "is_emergency": true
+    },
+    {
+      "input_text": "Do I have COVID?",
+      "language": "en-IN",
+      "expected_intent": "DIAGNOSIS_QUERY",
+      "expected_entities": [
+        {"text": "COVID", "type": "condition"}
+      ],
+      "is_emergency": false
+    },
+    {
+      "input_text": "मुझे सांस लेने में दिक्कत हो रही है और घरघराहट हो रही है",
+      "language": "hi-IN",
+      "expected_intent": "SYMPTOM_QUERY",
+      "expected_entities": [
+        {"text": "सांस लेने में दिक्कत", "type": "symptom"},
+        {"text": "घरघराहट", "type": "symptom"}
+      ],
+      "is_emergency": true
+    },
+    {
+      "input_text": "আমি ঘন ঘন প্রস্রাব করছি এবং খুব তৃষ্ণার্ত অনুভব করছি",
+      "language": "bn-IN",
+      "expected_intent": "SYMPTOM_QUERY",
+      "expected_entities": [
+        {"text": "ঘন ঘন প্রস্রাব", "type": "symptom"},
+        {"text": "তৃষ্ণার্ত", "type": "symptom"}
+      ],
+      "is_emergency": false
+    },
+    {
+      "input_text": "எனக்கு வாந்தி மற்றும் வயிற்று வலி உள்ளது",
+      "language": "ta-IN",
+      "expected_intent": "SYMPTOM_QUERY",
+      "expected_entities": [
+        {"text": "வாந்தி", "type": "symptom"},
+        {"text": "வயிற்று வலி", "type": "symptom"}
+      ],
+      "is_emergency": false
+    },
+    {
+      "input_text": "నాకు జ్వరం మరియు శరీరంలో నొప్పి ఉంది",
+      "language": "te-IN",
+      "expected_intent": "SYMPTOM_QUERY",
+      "expected_entities": [
+        {"text": "జ్వరం", "type": "symptom"},
+        {"text": "శరీరంలో నొప్పి", "type": "symptom"}
+      ],
+      "is_emergency": false
+    },
+    {
+      "input_text": "ನನಗೆ ಎದೆನೋವು ಮತ್ತು ಉಸಿರಾಟದಲ್ಲಿ ತೊಂದರೆ ಇದೆ",
+      "language": "kn-IN",
+      "expected_intent": "SYMPTOM_QUERY",
+      "expected_entities": [
+        {"text": "ಎದೆನೋವು", "type": "symptom"},
+        {"text": "ಉಸಿರಾಟದಲ್ಲಿ ತೊಂದರೆ", "type": "symptom"}
+      ],
+      "is_emergency": true
+    },
+    {
+      "input_text": "എനിക്ക് പലതവണ മൂത്രം വരുന്നു, അധികം ദാഹിക്കുന്നു",
+      "language": "ml-IN",
+      "expected_intent": "SYMPTOM_QUERY",
+      "expected_entities": [
+        {"text": "പലതവണ മൂത്രം വരുന്നു", "type": "symptom"},
+        {"text": "അധികം ദാഹിക്കുന്നു", "type": "symptom"}
+      ],
+      "is_emergency": false
+    }
+  ]
+} 

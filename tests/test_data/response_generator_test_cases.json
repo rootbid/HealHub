@@ -1,0 +1,173 @@
+{
+  "test_cases": [
+    {
+      "input_text": "What is diabetes?",
+      "nlu_result": {
+        "intent": "GENERAL_QUERY",
+        "entities": [
+          {"text": "diabetes", "type": "condition"}
+        ],
+        "is_emergency": false,
+        "language_detected": "en-IN"
+      },
+      "expected_response": {
+        "key_points": [
+          "diabetes",
+          "blood sugar",
+          "insulin",
+          "type 1",
+          "type 2",
+          "symptoms",
+          "treatment",
+          "management"
+        ]
+      },
+      "safety_requirements": {
+        "required_phrases": [
+          "consult a doctor",
+          "not a diagnosis",
+          "general information"
+        ]
+      },
+      "required_disclaimers": [
+        "This information is not a substitute for medical advice",
+        "Please consult a healthcare professional for proper diagnosis and treatment"
+      ]
+    },
+    {
+      "input_text": "How to treat common cold?",
+      "nlu_result": {
+        "intent": "TREATMENT_QUERY",
+        "entities": [
+          {"text": "common cold", "type": "condition"}
+        ],
+        "is_emergency": false,
+        "language_detected": "en-IN"
+      },
+      "expected_response": {
+        "key_points": [
+          "rest",
+          "hydration",
+          "over-the-counter",
+          "symptoms",
+          "duration",
+          "prevention"
+        ]
+      },
+      "safety_requirements": {
+        "required_phrases": [
+          "general advice",
+          "consult doctor if",
+          "not medical advice"
+        ]
+      },
+      "required_disclaimers": [
+        "This is general information only",
+        "Seek medical attention if symptoms worsen"
+      ]
+    },
+    {
+      "input_text": "मुझे COVID के लक्षण हैं",
+      "nlu_result": {
+        "intent": "SYMPTOM_QUERY",
+        "entities": [
+          {"text": "COVID", "type": "condition"},
+          {"text": "लक्षण", "type": "symptom"}
+        ],
+        "is_emergency": false,
+        "language_detected": "hi-IN"
+      },
+      "expected_response": {
+        "key_points": [
+          "COVID",
+          "symptoms",
+          "testing",
+          "isolation",
+          "prevention",
+          "vaccination"
+        ]
+      },
+      "safety_requirements": {
+        "required_phrases": [
+          "get tested",
+          "isolate",
+          "emergency warning signs"
+        ]
+      },
+      "required_disclaimers": [
+        "This is not a diagnosis",
+        "Get tested for COVID-19",
+        "Seek emergency care if you have trouble breathing"
+      ]
+    },
+    {
+      "input_text": "What are the side effects of paracetamol?",
+      "nlu_result": {
+        "intent": "MEDICATION_QUERY",
+        "entities": [
+          {"text": "paracetamol", "type": "medication"},
+          {"text": "side effects", "type": "query_type"}
+        ],
+        "is_emergency": false,
+        "language_detected": "en-IN"
+      },
+      "expected_response": {
+        "key_points": [
+          "paracetamol",
+          "side effects",
+          "dosage",
+          "precautions",
+          "allergic reactions",
+          "overdose"
+        ]
+      },
+      "safety_requirements": {
+        "required_phrases": [
+          "read label",
+          "consult doctor",
+          "not medical advice"
+        ]
+      },
+      "required_disclaimers": [
+        "This is general information only",
+        "Always read the medication label",
+        "Consult a healthcare professional before taking any medication"
+      ]
+    },
+    {
+      "input_text": "How to prevent heart disease?",
+      "nlu_result": {
+        "intent": "PREVENTION_QUERY",
+        "entities": [
+          {"text": "heart disease", "type": "condition"},
+          {"text": "prevent", "type": "query_type"}
+        ],
+        "is_emergency": false,
+        "language_detected": "en-IN"
+      },
+      "expected_response": {
+        "key_points": [
+          "lifestyle",
+          "diet",
+          "exercise",
+          "smoking",
+          "alcohol",
+          "stress",
+          "regular checkups"
+        ]
+      },
+      "safety_requirements": {
+        "required_phrases": [
+          "lifestyle changes",
+          "regular checkups",
+          "consult doctor"
+        ]
+      },
+      "required_disclaimers": [
+        "This is general information only",
+        "Regular health checkups are important",
+        "Consult a healthcare professional for personalized advice"
+      ]
+    }
+  ]
+} 
