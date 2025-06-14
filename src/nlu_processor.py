@@ -7,6 +7,58 @@ from dotenv import load_dotenv
 from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass
 from enum import Enum
+from functools import lru_cache
+from fuzzywuzzy import process
+import textdistance
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+def load_common_misspellings(filepath="src/common_misspellings.json"):
+    import json
+    try:
+        with open(filepath, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception as e:
+        print(f"Could not load misspellings dictionary: {e}")
+        return {}
+
+COMMON_MISSPELLINGS = load_common_misspellings()
+
+@lru_cache(maxsize=256)
+def correct_misspelled_entity(word: str) -> str:
+    # Direct match to key
+    if word.lower() in COMMON_MISSPELLINGS:
+        return word.lower()
+    # Match to value
+    for canonical, variants in COMMON_MISSPELLINGS.items():
+        if word.lower() in [v.lower() for v in variants]:
+            return canonical
+    # Fuzzy match to keys
+    result = process.extractOne(word.lower(), COMMON_MISSPELLINGS.keys())
+    if result is None:
+        return word
+    best_match, score = result
+    return best_match if score > 80 else word
+
+def phonetic_match(word: str, candidates_tuple: tuple) -> str:
+    candidates = list(candidates_tuple)
+    # Add all variant values to candidates
+    for variants in COMMON_MISSPELLINGS.values():
+        candidates.extend(variants)
+    if not candidates:
+        return word
+    best_match = max(
+        candidates,
+        key=lambda c: textdistance.levenshtein.normalized_similarity(word.lower(), c.lower())
+    )
+    if textdistance.levenshtein.normalized_similarity(word.lower(), best_match.lower()) > 0.7:
+        # If best_match is a variant, return its canonical key
+        for canonical, variants in COMMON_MISSPELLINGS.items():
+            if best_match.lower() == canonical.lower() or best_match.lower() in [v.lower() for v in variants]:
+                return canonical
+    return word
 
 class HealthIntent(Enum):
     """Healthcare-specific intents"""
@@ -377,7 +429,21 @@ Respond ONLY with JSON format:
             if augmented_count > 0:
                 print(f"ℹ️ Augmented entities with {augmented_count} symptoms from keyword matching.")
             
-        return entities
+        # Apply spelling and phonetic correction to entity texts
+    
+        seen = set()
+        deduped_entities = []
+        for entity in entities:
+            original = entity.text
+            entity.text = correct_misspelled_entity(entity.text)
+            entity.text = phonetic_match(entity.text, tuple(COMMON_MISSPELLINGS.keys()))
+            if entity.text != original:
+                logger.info(f"🔄 Corrected '{original}' to '{entity.text}'")
+            key = (entity.text.lower(), entity.entity_type)
+            if key not in seen:
+                seen.add(key)
+                deduped_entities.append(entity)
+        return deduped_entities
     
     def _is_diagnosis_request(self, text: str) -> bool:
         """Check if text contains diagnosis request patterns"""
