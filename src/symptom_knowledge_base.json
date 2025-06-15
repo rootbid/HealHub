@@ -401,6 +401,806 @@
         "Sudden loss of appetite in children or elderly should be discussed with a doctor.",
         "Short-term loss of appetite is common with minor illnesses but should resolve as you recover."
       ]
+    },
+    {
+      "symptom_name": "abdominal bloating",
+      "keywords": ["bloating",
+                "abdominal distension",
+                "fullness"
+            ],
+      "follow_up_questions": [
+                "When did the bloating start?",
+                "Any pain, vomiting, or weight loss?",
+                "Any changes in bowel habits?"
+            ],
+      "basic_triage_points": [
+                "Persistent bloating with weight loss or blood in stool is a red flag.",
+                "Severe pain, vomiting, or inability to pass stool needs urgent care.",
+                "Mild, occasional bloating is usually not serious."
+            ]
+    },
+    {
+      "symptom_name": "abnormal vaginal bleeding",
+      "keywords": [
+                "vaginal bleeding",
+                "abnormal periods",
+                "postmenopausal bleeding"
+            ],
+      "follow_up_questions": [
+                "When did the bleeding start?",
+                "How heavy is it?",
+                "Any pain or other symptoms?"
+            ],
+      "basic_triage_points": [
+                "Heavy bleeding, bleeding after menopause, or bleeding with pain needs urgent evaluation.",
+                "Light spotting is common but should be monitored.",
+                "Persistent abnormal bleeding should be checked."
+            ]
+    },
+    {
+      "symptom_name": "anxiety",
+      "keywords": [
+                "nervousness",
+                "worry",
+                "panic"
+            ],
+      "follow_up_questions": [
+                "How long have you felt anxious?",
+                "Any panic attacks or trouble sleeping?",
+                "Any impact on daily life?"
+            ],
+      "basic_triage_points": [
+                "Severe anxiety with inability to function is a red flag.",
+                "Suicidal thoughts need immediate help.",
+                "Persistent anxiety should be discussed with a provider."
+            ]
+    },
+    {
+      "symptom_name": "bedwetting",
+      "keywords": [
+                "nocturnal enuresis",
+                "night-time urination"
+            ],
+      "follow_up_questions": [
+                "How often does bedwetting occur?",
+                "Any daytime symptoms?",
+                "Any pain or blood in urine?"
+            ],
+      "basic_triage_points": [
+                "Bedwetting in older children or adults needs evaluation.",
+                "Bedwetting with pain, fever, or blood is a red flag.",
+                "Occasional bedwetting in young children is common."
+            ]
+    },
+    {
+      "symptom_name": "bleeding gums",
+      "keywords": [
+                "gum bleeding",
+                "oral bleeding"
+            ],
+      "follow_up_questions": [
+                "When do your gums bleed?",
+                "Any swelling, pain, or loose teeth?",
+                "Any recent dental work?"
+            ],
+      "basic_triage_points": [
+                "Persistent bleeding, swelling, or pain is a red flag.",
+                "Bleeding with fever or difficulty swallowing needs urgent care.",
+                "Good oral hygiene is important."
+            ]
+    },
+    {
+      "symptom_name": "blood in stool",
+      "keywords": [
+                "rectal bleeding",
+                "black stool",
+                "hematochezia"
+            ],
+      "follow_up_questions": [
+                "When did you notice blood?",
+                "Is it bright red or dark?",
+                "Any pain or weight loss?"
+            ],
+      "basic_triage_points": [
+                "Large amounts of blood, black/tarry stool, or weakness is a red flag.",
+                "Persistent bleeding needs urgent evaluation.",
+                "Mild bleeding from hemorrhoids is common but should be monitored."
+            ]
+    },
+    {
+      "symptom_name": "blood in urine",
+      "keywords": [
+                "hematuria",
+                "pink urine",
+                "red urine"
+            ],
+      "follow_up_questions": [
+                "When did you notice blood?",
+                "Any pain, fever, or trouble urinating?",
+                "Any history of kidney stones?"
+            ],
+      "basic_triage_points": [
+                "Large amounts of blood, pain, or fever is a red flag.",
+                "Persistent blood in urine needs evaluation.",
+                "Mild, one-time blood may be monitored."
+            ]
+    },
+    {
+      "symptom_name": "burning urination",
+      "keywords": [
+                "dysuria",
+                "painful urination"
+            ],
+      "follow_up_questions": [
+                "When did the burning start?",
+                "Any fever, back pain, or blood in urine?",
+                "Any increased frequency?"
+            ],
+      "basic_triage_points": [
+                "Burning with fever, back pain, or blood is a red flag.",
+                "Persistent symptoms need evaluation.",
+                "Mild, short-term burning may be due to irritation."
+            ]
+    },
+    {
+      "symptom_name": "confusion",
+      "keywords": [
+                "disorientation",
+                "altered mental state"
+            ],
+      "follow_up_questions": [
+                "When did confusion start?",
+                "Any fever, head injury, or new medications?",
+                "Any trouble waking up?"
+            ],
+      "basic_triage_points": [
+                "Sudden confusion, fever, or inability to wake is a medical emergency.",
+                "Persistent confusion needs urgent evaluation.",
+                "Mild confusion after sleep may resolve."
+            ]
+    },
+    {
+      "symptom_name": "depression",
+      "keywords": [
+                "sadness",
+                "low mood",
+                "loss of interest"
+            ],
+      "follow_up_questions": [
+                "How long have you felt depressed?",
+                "Any trouble sleeping or eating?",
+                "Any suicidal thoughts?"
+            ],
+      "basic_triage_points": [
+                "Suicidal thoughts or inability to function is a medical emergency.",
+                "Persistent depression needs evaluation.",
+                "Mild symptoms may improve with support."
+            ]
+    },
+    {
+      "symptom_name": "difficulty concentrating",
+      "keywords": [
+                "trouble concentrating",
+                "poor focus",
+                "brain fog"
+            ],
+      "follow_up_questions": [
+                "When did you notice trouble focusing?",
+                "Any stress, sleep problems, or medication changes?",
+                "Any other symptoms?"
+            ],
+      "basic_triage_points": [
+                "Sudden loss of concentration or confusion is a red flag.",
+                "Persistent trouble focusing needs evaluation.",
+                "Mild, short-term issues may resolve."
+            ]
+    },
+    {
+      "symptom_name": "difficulty sleeping",
+      "keywords": [
+                "insomnia",
+                "trouble sleeping",
+                "poor sleep"
+            ],
+      "follow_up_questions": [
+                "How long have you had trouble sleeping?",
+                "Any stress or pain?",
+                "Any daytime sleepiness?"
+            ],
+      "basic_triage_points": [
+                "Severe insomnia with confusion is a red flag.",
+                "Persistent inability to sleep needs evaluation.",
+                "Good sleep hygiene may help mild cases."
+            ]
+    },
+    {
+      "symptom_name": "dry eyes",
+      "keywords": [
+                "gritty eyes",
+                "eye discomfort"
+            ],
+       "follow_up_questions": [
+                "How long have your eyes been dry?",
+                "Any redness, pain, or vision changes?",
+                "Any use of screens or contacts?"
+            ],
+      "basic_triage_points": [
+                "Dry eyes with pain or vision loss is a red flag.",
+                "Persistent symptoms need evaluation.",
+                "Artificial tears may help mild dryness."
+            ]
+    },
+    {
+      "symptom_name": "dry mouth",
+      "keywords": [
+                "xerostomia",
+                "mouth dryness"
+            ],
+       "follow_up_questions": [
+                "How long have you had dry mouth?",
+                "Any trouble swallowing or speaking?",
+                "Any sores or dental issues?"
+            ],
+      "basic_triage_points": [
+                "Dry mouth with trouble swallowing or sores is a red flag.",
+                "Persistent symptoms need evaluation.",
+                "Stay hydrated and maintain oral hygiene."
+            ]
+    },
+    {
+      "symptom_name": "excessive thirst",
+      "keywords": [
+                "polydipsia",
+                "always thirsty"
+            ],
+      "follow_up_questions": [
+                "When did thirst start?",
+                "Any increased urination or weight loss?",
+                "Any other symptoms?"
+            ],
+      "basic_triage_points": [
+                "Excessive thirst with frequent urination, weight loss, or confusion is a red flag.",
+                "Persistent symptoms need evaluation for diabetes or dehydration."
+            ]
+    },
+    {
+      "symptom_name": "fainting",
+      "keywords": [
+                "syncope",
+                "passing out"
+            ],
+      "follow_up_questions": [
+                "When did you faint?",
+                "Any warning signs, chest pain, or palpitations?",
+                "Any history of heart problems?"
+            ],
+      "basic_triage_points": [
+                "Fainting with chest pain, palpitations, or injury is a red flag.",
+                "Persistent or recurrent fainting needs evaluation."
+            ]
+    },
+    {
+      "symptom_name": "hair loss",
+      "keywords": [
+                "alopecia",
+                "thinning hair"
+            ],
+      "follow_up_questions": [
+                "When did hair loss start?",
+                "Any patches or overall thinning?",
+                "Any new medications or stress?"
+            ],
+      "basic_triage_points": [
+                "Sudden patchy hair loss or hair loss with rash is a red flag.",
+                "Gradual thinning is common but should be monitored."
+            ]
+    },
+    {
+      "symptom_name": "hearing loss",
+      "keywords": [
+                "deafness",
+                "reduced hearing"
+            ],
+      "follow_up_questions": [
+                "When did hearing loss start?",
+                "Any pain, discharge, or ringing?",
+                "Any recent infections or loud noise exposure?"
+            ],
+      "basic_triage_points": [
+                "Sudden hearing loss or hearing loss with pain/discharge is a red flag.",
+                "Persistent hearing loss needs evaluation."
+            ]
+    },
+    {
+      "symptom_name": "hoarseness",
+      "keywords": [
+                "raspy voice",
+                "voice change"
+            ],
+      "follow_up_questions": [
+                "How long have you been hoarse?",
+                "Any pain, cough, or trouble swallowing?",
+                "Any history of smoking?"
+            ],
+      "basic_triage_points": [
+                "Hoarseness lasting more than 2 weeks, with pain or trouble swallowing, is a red flag.",
+                "Persistent symptoms need evaluation."
+            ]
+    },
+    {
+      "symptom_name": "increased appetite",
+      "keywords": [
+                "excessive hunger",
+                "polyphagia"
+            ],
+      "follow_up_questions": [
+                "When did appetite increase?",
+                "Any weight changes or thirst?",
+                "Any other symptoms?"
+            ],
+      "basic_triage_points": [
+                "Increased appetite with weight loss or excessive thirst is a red flag.",
+                "Persistent symptoms need evaluation."
+            ]
+    },
+    {
+      "symptom_name": "irritability",
+      "keywords": [
+                "moodiness",
+                "agitation"
+            ],
+      "follow_up_questions": [
+                "How long have you felt irritable?",
+                "Any sleep or stress issues?",
+                "Any impact on daily life?"
+            ],
+      "basic_triage_points": [
+                "Severe irritability with aggression or inability to function is a red flag.",
+                "Persistent symptoms need evaluation."
+            ]
+    },
+    {
+      "symptom_name": "memory loss",
+      "keywords": [
+                "forgetfulness",
+                "amnesia"
+            ],
+      "follow_up_questions": [
+                "When did memory loss start?",
+                "Any confusion, head injury, or medication changes?",
+                "Any trouble with daily activities?"
+            ],
+      "basic_triage_points": [
+                "Sudden memory loss, confusion, or inability to function is a red flag.",
+                "Persistent memory loss needs evaluation."
+            ]
+    },
+    {
+      "symptom_name": "muscle weakness",
+      "keywords": [
+                "loss of strength",
+                "weak muscles"
+            ],
+      "follow_up_questions": [
+                "Where is the weakness?",
+                "When did it start?",
+                "Any numbness, pain, or trouble moving?"
+            ],
+      "basic_triage_points": [
+                "Sudden weakness, especially on one side, is a stroke emergency.",
+                "Persistent or worsening weakness needs evaluation."
+            ]
+    },
+    {
+      "symptom_name": "joint swelling",
+      "keywords": [
+                "swollen joint",
+                "arthritis"
+            ],
+      "follow_up_questions": [
+                "Which joint is swollen?",
+                "When did swelling start?",
+                "Any pain, redness, or fever?"
+            ],
+      "basic_triage_points": [
+                "Swelling with redness, heat, or fever is a red flag.",
+                "Persistent or multiple joint swelling needs evaluation."
+            ]
+    },
+    {
+      "symptom_name": "joint stiffness",
+      "keywords": [
+                "stiff joints",
+                "morning stiffness"
+            ],
+      "follow_up_questions": [
+                "Which joints are stiff?",
+                "When is stiffness worst?",
+                "Any swelling or pain?"
+            ],
+      "basic_triage_points": [
+                "Stiffness with swelling, pain, or fever is a red flag.",
+                "Persistent or worsening stiffness needs evaluation."
+            ]
+    },
+    {
+      "symptom_name": "muscle cramps",
+      "keywords": [
+                "muscle cramp",
+                "muscle spasm",
+                "charley horse"
+            ],
+      "follow_up_questions": [
+                "Where do cramps occur?",
+                "When do they happen?",
+                "Any weakness, pain, or swelling?"
+            ],
+      "basic_triage_points": [
+                "Cramps with swelling, redness, or weakness is a red flag.",
+                "Persistent or severe cramps need evaluation."
+            ]
+    },
+    {
+      "symptom_name": "neck pain",
+      "keywords": [
+                "stiff neck",
+                "cervicalgia"
+            ],
+      "follow_up_questions": [
+                "When did pain start?",
+                "Any injury, fever, or numbness?",
+                "Any trouble moving?"
+            ],
+      "basic_triage_points": [
+                "Neck pain with fever, headache, or numbness is a red flag.",
+                "Persistent or severe pain needs evaluation."
+            ]
+    },
+    {
+      "symptom_name": "shoulder pain",
+      "keywords": [
+                "arm pain",
+                "rotator cuff pain"
+            ],
+      "follow_up_questions": [
+                "When did pain start?",
+                "Any injury, swelling, or weakness?",
+                "Any trouble moving arm?"
+            ],
+      "basic_triage_points": [
+                "Shoulder pain with swelling, deformity, or numbness is a red flag.",
+                "Persistent or worsening pain needs evaluation."
+            ]
+    },
+    {
+      "symptom_name": "runny nose",
+      "keywords": [
+                "rhinorrhea",
+                "nasal discharge"
+            ],
+      "follow_up_questions": [
+                "How long has your nose been runny?",
+                "Any fever, cough, or sinus pain?",
+                "Any allergies?"
+            ],
+      "basic_triage_points": [
+                "Runny nose with high fever, severe pain, or breathing trouble is a red flag.",
+                "Persistent symptoms may need evaluation."
+            ]
+    },
+    {
+      "symptom_name": "nasal congestion",
+      "keywords": [
+                "stuffy nose",
+                "blocked nose"
+            ],
+      "follow_up_questions": [
+                "How long have you been congested?",
+                "Any pain, fever, or trouble breathing?",
+                "Any allergies?"
+            ],
+      "basic_triage_points": [
+                "Congestion with high fever, severe pain, or breathing trouble is a red flag.",
+                "Persistent symptoms may need evaluation."
+            ]
+    },
+    {
+      "symptom_name": "sneezing",
+      "keywords": [
+                "sneeze",
+                "sneezing fits",
+                "allergy symptoms"
+            ],
+      "follow_up_questions": [
+                "How often do you sneeze?",
+                "Any runny nose, itchiness, or fever?",
+                "Any known allergies?"
+            ],
+      "basic_triage_points": [
+                "Sneezing with trouble breathing, swelling, or high fever is a red flag.",
+                "Persistent sneezing may need allergy evaluation."
+            ]
+    },
+    {
+      "symptom_name": "sinus pain",
+      "keywords": [
+                "facial pain",
+                "sinus pressure"
+            ],
+      "follow_up_questions": [
+                "Where is the pain?",
+                "Any congestion, fever, or discharge?",
+                "Any recent infections?"
+            ],
+      "basic_triage_points": [
+                "Sinus pain with high fever, swelling, or vision changes is a red flag.",
+                "Persistent pain may need evaluation."
+            ]
+    },
+    {
+      "symptom_name": "ear pain",
+      "keywords": [
+                "otalgia",
+                "sore ear"
+            ],
+      "follow_up_questions": [
+                "Which ear hurts?",
+                "Any fever, discharge, or hearing loss?",
+                "Any recent infections?"
+            ],
+      "basic_triage_points": [
+                "Ear pain with fever, discharge, or hearing loss is a red flag.",
+                "Persistent or severe pain needs evaluation."
+            ]
+    },
+    {
+      "symptom_name": "ear ringing",
+      "keywords": [
+                "tinnitus",
+                "ringing in ears",
+                "buzzing in ears"
+            ],
+      "follow_up_questions": [
+                "When did ringing start?",
+                "Is it constant or intermittent?",
+                "Any hearing loss or dizziness?"
+            ],
+      "basic_triage_points": [
+                "Tinnitus with sudden hearing loss or dizziness is a red flag.",
+                "Persistent or worsening tinnitus needs evaluation."
+            ]
+    },
+    {
+      "symptom_name": "dry skin",
+      "keywords": [
+                "xerosis",
+                "flaky skin"
+            ],
+      "follow_up_questions": [
+                "How long has skin been dry?",
+                "Any itching, redness, or cracking?",
+                "Any new soaps or lotions?"
+            ],
+      "basic_triage_points": [
+                "Dry skin with rash, pain, or infection is a red flag.",
+                "Persistent or severe dryness needs evaluation."
+            ]
+    },
+    {
+      "symptom_name": "mouth ulcers",
+      "keywords": [
+                "mouth ulcer",
+                "canker sore",
+                "aphthous ulcer"
+            ],
+      "follow_up_questions": [
+                "When did the ulcer appear?",
+                "Any pain, fever, or trouble eating?",
+                "Any recent illness or injury?"
+            ],
+      "basic_triage_points": [
+                "Mouth ulcers with fever, swelling, or lasting more than 2 weeks is a red flag.",
+                "Persistent or multiple ulcers need evaluation."
+            ]
+    },
+    {
+      "symptom_name": "bad taste in mouth",
+      "keywords": [
+                "bad taste",
+                "metallic taste",
+                "dysgeusia"
+            ],
+      "follow_up_questions": [
+                "How long have you noticed the taste?",
+                "Any dental issues or medication changes?",
+                "Any fever or sore throat?"
+            ],
+      "basic_triage_points": [
+                "Bad taste with fever, swelling, or sores is a red flag.",
+                "Persistent symptoms need evaluation."
+            ]
+    },
+    {
+      "symptom_name": "bad breath",
+      "keywords": [
+                "halitosis",
+                "foul breath"
+            ],
+      "follow_up_questions": [
+                "How long have you had bad breath?",
+                "Any dental pain or infection?",
+                "Any dry mouth or sore throat?"
+            ],
+      "basic_triage_points": [
+                "Bad breath with pain, swelling, or sores is a red flag.",
+                "Persistent symptoms need dental evaluation."
+            ]
+    },
+    {
+      "symptom_name": "heat intolerance",
+      "keywords": [
+                "can't tolerate heat",
+                "overheating"
+            ],
+      "follow_up_questions": [
+                "When did intolerance start?",
+                "Any sweating, palpitations, or weight loss?",
+                "Any thyroid issues?"
+            ],
+      "basic_triage_points": [
+                "Heat intolerance with confusion, rapid heartbeat, or fainting is a red flag.",
+                "Persistent symptoms need evaluation."
+            ]
+    },
+    {
+      "symptom_name": "cold intolerance",
+      "keywords": [
+                "can't tolerate cold",
+                "feeling cold"
+            ],
+      "follow_up_questions": [
+                "When did intolerance start?",
+                "Any weight gain, fatigue, or thyroid issues?",
+                "Any medications?"
+            ],
+      "basic_triage_points": [
+                "Cold intolerance with fatigue, swelling, or hair loss is a red flag.",
+                "Persistent symptoms need evaluation."
+            ]
+    },
+    {
+      "symptom_name": "muscle twitching",
+      "keywords": [
+                "muscle twitch",
+                "fasciculation",
+                "involuntary movement"
+            ],
+      "follow_up_questions": [
+                "Where do twitches occur?",
+                "When did they start?",
+                "Any weakness, pain, or numbness?"
+            ],
+      "basic_triage_points": [
+                "Twitching with weakness or muscle loss is a red flag.",
+                "Persistent or spreading symptoms need evaluation."
+            ]
+    },
+    {
+      "symptom_name": "skin discoloration",
+      "keywords": [
+                "color change",
+                "hyperpigmentation"
+            ],
+      "follow_up_questions": [
+                "Where is the discoloration?",
+                "When did it appear?",
+                "Any pain, itching, or rash?"
+            ],
+      "basic_triage_points": [
+                "Sudden or widespread discoloration is a red flag.",
+                "Discoloration with pain, swelling, or fever needs evaluation."
+            ]
+    },
+    {
+      "symptom_name": "swollen lymph nodes",
+      "keywords": [
+                "swollen lymph node",
+                "lump in neck",
+                "gland swelling"
+            ],
+      "follow_up_questions": [
+                "Where are the swollen nodes?",
+                "When did swelling start?",
+                "Any pain, fever, or weight loss?"
+            ],
+      "basic_triage_points": [
+                "Swelling with fever, pain, or weight loss is a red flag.",
+                "Persistent or enlarging nodes need evaluation."
+            ]
+    },
+    {
+      "symptom_name": "difficulty swallowing",
+      "keywords": [
+                "trouble swallowing",
+                "dysphagia",
+                "food sticking"
+            ],
+      "follow_up_questions": [
+                "When did swallowing trouble start?",
+                "Is it with solids, liquids, or both?",
+                "Any pain or weight loss?"
+            ],
+      "basic_triage_points": [
+                "Difficulty swallowing with choking, weight loss, or pain is a red flag.",
+                "Persistent or worsening symptoms need evaluation."
+            ]
+    },
+    {
+      "symptom_name": "increased heart rate",
+      "keywords": [
+                "fast heart rate",
+                "palpitations",
+                "tachycardia"
+            ],
+      "follow_up_questions": [
+                "When did your heart race?",
+                "Any chest pain, fainting, or shortness of breath?",
+                "Any medications?"
+            ],
+      "basic_triage_points": [
+                "Rapid heart rate with chest pain, fainting, or trouble breathing is a red flag.",
+                "Persistent or unexplained tachycardia needs evaluation."
+            ]
+    },
+    {
+      "symptom_name": "bruising easily",
+      "keywords": [
+                "easy bruising",
+                "frequent bruises",
+                "purpura"
+            ],
+      "follow_up_questions": [
+                "When did bruising start?",
+                "Any bleeding elsewhere?",
+                "Any new medications?"
+            ],
+      "basic_triage_points": [
+                "Easy bruising with bleeding, fever, or new lumps is a red flag.",
+                "Persistent or unexplained bruising needs evaluation."
+            ]
+    },
+    {
+      "symptom_name": "bone pain",
+      "keywords": [
+                "aching bones",
+                "deep pain"
+            ],
+      "follow_up_questions": [
+                "Where is the pain?",
+                "When did it start?",
+                "Any swelling, fever, or injury?"
+            ],
+      "basic_triage_points": [
+                "Bone pain with swelling, fever, or weight loss is a red flag.",
+                "Persistent or severe pain needs evaluation."
+            ]
+    },
+    {
+      "symptom_name": "blisters",
+      "keywords": [
+                "blister",
+                "fluid-filled bump",
+                "vesicle"
+            ],
+      "follow_up_questions": [
+                "Where are the blisters?",
+                "When did they appear?",
+                "Any pain, redness, or fever?"
+            ],
+      "basic_triage_points": [
+                "Blisters with pain, redness, or fever are a red flag.",
+                "Large or spreading blisters need evaluation."
+            ]
     }
   ]
 }
