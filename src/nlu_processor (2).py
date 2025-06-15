@@ -15,6 +15,22 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+with open("src/hinglish_symptoms.json", "r", encoding="utf-8") as f:
+    HINGLISH_SYMPTOMS = json.load(f)
+
+import re
+
+def normalize_hinglish_terms(text: str) -> str:
+    for key, variations in HINGLISH_SYMPTOMS.items():
+        for variant in variations:
+            pattern = r'(?<!\w)' + re.escape(variant) + r'(?!\w)'
+            text = re.sub(pattern, key, text)
+    return text
+
+def tokenize_hinglish_query(text: str) -> List[str]:
+    """Break down Hinglish sentence into individual tokens."""
+    return re.findall(r'\b[\w]+\b', text.lower())
+
 def load_common_misspellings(filepath="src/common_misspellings.json"):
     import json
     try:
@@ -194,6 +210,17 @@ class SarvamMNLUProcessor:
             self.symptom_kb = []
 
     def process_transcription(self, transcribed_text: str, source_language: str = "hi-IN") -> NLUResult:
+        transcribed_text = normalize_hinglish_terms(transcribed_text)
+       
+            # Hinglish intent pre-check
+        hinglish_intent = self.get_intent(transcribed_text)
+        if hinglish_intent == HealthIntent.SYMPTOM_QUERY:
+            intent, intent_confidence = hinglish_intent, 1.0
+        else:
+            intent, intent_confidence = self._classify_intent(transcribed_text, source_language)
+        
+        print(f"🧠 Processing NLU for: '{transcribed_text}'")
+        
         """
         Process transcribed text through Sarvam-M for NLU
         
@@ -211,7 +238,7 @@ class SarvamMNLUProcessor:
         requires_disclaimer = self._requires_medical_disclaimer(transcribed_text)
         
         # Step 2: Intent classification using Sarvam-M
-        intent, intent_confidence = self._classify_intent(transcribed_text, source_language)
+        #intent, intent_confidence = self._classify_intent(transcribed_text, source_language)
         
         # Step 3: Entity extraction
         entities = self._extract_medical_entities(transcribed_text, source_language)
@@ -334,6 +361,13 @@ Respond ONLY with JSON format: {"intent": "category_name", "confidence": 0.95}""
             
         return HealthIntent.UNKNOWN, 0.5
     
+    def get_intent(self, text: str) -> HealthIntent:
+        normalized_text = normalize_hinglish_terms(text.lower())
+        for symptom in HINGLISH_SYMPTOMS.keys():
+            if symptom in normalized_text:
+                return HealthIntent.SYMPTOM_QUERY
+        return HealthIntent.GENERAL_HEALTH
+
     def _extract_medical_entities(self, text: str, language: str) -> List[MedicalEntity]:
         """Extract medical entities using real Sarvam-M API"""
         
