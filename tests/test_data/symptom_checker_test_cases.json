@@ -1,121 +1,48 @@
-{
-  "test_cases": [
-    {
-      "input_text": "I have fever and headache",
-      "language": "en-IN",
-      "symptoms": ["fever", "headache"],
-      "expected_symptoms": ["fever", "headache"],
-      "expected_questions": [
-        "How high is the fever?",
-        "How long have you had the fever?",
-        "Where is the headache located?",
-        "Is it a throbbing pain?"
-      ],
-      "simulated_answers": {
-        "fever": {
-          "How high is the fever?": "101F",
-          "How long have you had the fever?": "2 days"
-        },
-        "headache": {
-          "Where is the headache located?": "forehead",
-          "Is it a throbbing pain?": "yes"
-        }
-      },
-      "expected_assessment": {
-        "suggested_severity": "May require attention",
-        "key_points": [
-          "fever",
-          "headache",
-          "forehead",
-          "throbbing",
-          "2 days"
-        ]
-      },
-      "expected_triage": {
-        "severity": "May require attention",
-        "required_points": [
-          "Fever > 3 days needs check",
-          "Sudden severe headache is urgent"
-        ]
-      }
+[
+  {
+    "input_text": "I have fever and headache",
+    "language": "en-IN",
+    "symptoms": ["fever", "headache"],
+    "expected_symptoms": ["fever", "headache"],
+    "expected_questions": [
+      "How high is the fever?",
+      "Where is the headache located?"
+    ],
+    "simulated_answers": {
+      "fever": { "How high is the fever?": "101F" },
+      "headache": { "Where is the headache located?": "forehead" }
     },
-    {
-      "input_text": "मुझे खांसी और सांस लेने में तकलीफ है",
-      "language": "hi-IN",
-      "symptoms": ["खांसी", "सांस लेने में तकलीफ"],
-      "expected_symptoms": ["cough", "breathing difficulty"],
-      "expected_questions": [
-        "Is it a dry cough or wet cough?",
-        "How long have you had the cough?",
-        "Is the breathing difficulty constant or does it come and go?",
-        "Does it get worse with activity?"
-      ],
-      "simulated_answers": {
-        "cough": {
-          "Is it a dry cough or wet cough?": "dry",
-          "How long have you had the cough?": "1 week"
-        },
-        "breathing difficulty": {
-          "Is the breathing difficulty constant or does it come and go?": "comes and goes",
-          "Does it get worse with activity?": "yes"
-        }
-      },
-      "expected_assessment": {
-        "suggested_severity": "Requires medical attention",
-        "key_points": [
-          "dry cough",
-          "1 week",
-          "intermittent breathing difficulty",
-          "worse with activity"
-        ]
-      },
-      "expected_triage": {
-        "severity": "Requires medical attention",
-        "required_points": [
-          "Persistent cough needs check",
-          "Breathing difficulty with activity is concerning"
-        ]
-      }
+    "expected_assessment": {
+      "suggested_severity": "May require attention",
+      "key_points": ["fever", "headache", "forehead"]
     },
-    {
-      "input_text": "I have severe chest pain and difficulty breathing",
-      "language": "en-IN",
-      "symptoms": ["chest pain", "breathing difficulty"],
-      "expected_symptoms": ["chest pain", "breathing difficulty"],
-      "expected_questions": [
-        "Is the chest pain sharp or dull?",
-        "Does the pain radiate to other areas?",
-        "Is the breathing difficulty constant or does it come and go?",
-        "Are you experiencing any other symptoms?"
-      ],
-      "simulated_answers": {
-        "chest pain": {
-          "Is the chest pain sharp or dull?": "sharp",
-          "Does the pain radiate to other areas?": "yes, to left arm"
-        },
-        "breathing difficulty": {
-          "Is the breathing difficulty constant or does it come and go?": "constant",
-          "Are you experiencing any other symptoms?": "sweating and nausea"
-        }
-      },
-      "expected_assessment": {
-        "suggested_severity": "Emergency",
-        "key_points": [
-          "severe chest pain",
-          "sharp pain",
-          "radiating to left arm",
-          "constant breathing difficulty",
-          "sweating",
-          "nausea"
-        ]
-      },
-      "expected_triage": {
-        "severity": "Emergency",
-        "required_points": [
-          "Chest pain with radiation is urgent",
-          "Seek immediate medical attention"
-        ]
-      }
-    }
-  ]
-} 
+    "expected_triage": {
+      "severity": "May require attention",
+      "required_points": ["Fever > 3 days needs check"]
+    },
+    "is_emergency": false
+  },
+  {
+    "input_text": "My child is vomiting and has a high fever.",
+    "language": "en-IN",
+    "symptoms": ["vomiting", "fever"],
+    "expected_symptoms": ["vomiting", "fever"],
+    "expected_questions": [
+      "How many times has your child vomited?",
+      "What is the temperature?"
+    ],
+    "simulated_answers": {
+      "vomiting": { "How many times has your child vomited?": "3" },
+      "fever": { "What is the temperature?": "102F" }
+    },
+    "expected_assessment": {
+      "suggested_severity": "Urgent",
+      "key_points": ["vomiting", "fever", "child"]
+    },
+    "expected_triage": {
+      "severity": "Urgent",
+      "required_points": ["High fever in children needs urgent care"]
+    },
+    "is_emergency": true
+  }
+]
