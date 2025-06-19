@@ -7,4 +7,3 @@ requests
 soundfile
 pydub
 streamlit-mic-recorder
-librosa

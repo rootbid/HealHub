@@ -274,7 +274,6 @@ def main_ui():
 
         current_lang_code_for_query = st.session_state.current_language_code
         if st.session_state.captured_audio_data is not None:
-            print('Inside')
             with st.spinner("Cleaning the captured audio..."):
                 with io.BytesIO(st.session_state.captured_audio_data) as buffer:
                     data, sr = sf.read(buffer)
@@ -301,11 +300,11 @@ def main_ui():
                             st.session_state.cleaned_audio_data, sample_rate=st.session_state.captured_audio_sample_rate, source_language=lang_for_stt
                         )
                     transcribed_text = stt_result.get("transcription")
-                    print(lang_for_stt)
-                    print(stt_result.get("language_detected"))
                     if lang_for_stt != stt_result.get("language_detected"):
-                        print('Changing the language')
-                        transcribed_text = util.translate_text_to_english(transcribed_text)
+                        if lang_for_stt == "en-IN":
+                            transcribed_text = util.translate_text_to_english(transcribed_text)
+                        else:
+                            transcribed_text = util.translate_text(transcribed_text, lang_for_stt)
                     if transcribed_text and transcribed_text.strip():
                         add_message_to_conversation("user", transcribed_text, lang_code=lang_for_stt.split('-')[0])
                         process_and_display_response(transcribed_text, lang_for_stt) 
