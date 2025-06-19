@@ -7,6 +7,7 @@ import numpy as np
 import base64
 from pydub import AudioSegment
 import io
+import soundfile as sf
 
 class HealHubUtilities:
     """Core utilities for HealHub healthcare application"""
@@ -169,7 +170,54 @@ class HealHubUtilities:
             print(f"Speech synthesis error: {e}")
             return None
 
+    def transcribe_audio(self, audio_data, sample_rate=48000, source_language="hi-IN"):
+        """
+        Send cleaned audio to Sarvam's Saarika v2 for transcription
         
+        Args:
+            audio_data: Cleaned audio data (int16)
+            sample_rate: Audio sample rate
+            source_language: Source language code (e.g., "hi-IN", "ta-IN", etc.)
+        """
+        
+        audio_buffer = io.BytesIO()
+        sf.write(audio_buffer, audio_data, sample_rate, format='WAV')
+        audio_buffer.seek(0)
+
+        headers = {
+            "api-subscription-key": self.api_key
+        }
+        files = {
+            "file": ("audio.wav", audio_buffer, "audio/wav")
+        }
+        payload = {
+            "language_code": source_language
+        }
+
+        try:
+            response = requests.post(
+                f"{self.base_api_url}/speech-to-text",
+                headers=headers,
+                json=payload,
+                files=files,
+                timeout=60
+            )
+            response.raise_for_status()
+            result = response.json()
+            transcription = result.get("transcript", "")
+            language_detected = result.get("language_code", source_language)
+            return {
+                "transcription": transcription,
+                "language_detected": language_detected
+            }
+        except requests.RequestException as e:
+            print(f"❌ Sarvam STT API call failed: {e}")
+            return {
+                "transcription": "",
+                "language_detected": source_language
+            }
+
+
     def batch_translate(self, texts: List[str], target_lang: str) -> List[str]:
         """Optimized batch translation for multiple texts"""
         if target_lang.startswith("en"):
