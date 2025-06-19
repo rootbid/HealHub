@@ -253,13 +253,13 @@ def main_ui():
         st.error("🚨 SARVAM_API_KEY not found. Please set it in your .env file for the application to function.")
         st.stop()
 
-    col1, col2 = st.columns([3, 6.2])
+    col1, col2 = st.columns([3, 9])
     with col1:
-        st.title("💬 HealHub Genie")
+        st.title("💬 HealHub")
         st.caption("Your AI healthcare companion. Supporting English and Popular Indic Languages.")
         st.markdown(f"<div style='height: 40px;'></div>", unsafe_allow_html=True)
         selected_lang_display = st.selectbox(
-            "Select Language / भाषा चुनें / ভাষা নির্বাচন করুন / भाषा निवडा:",
+            "Select Language / भाषा चुनें / ভাষা নির্বাচন করুন:",
             options=DISPLAY_LANGUAGES,
             index=DISPLAY_LANGUAGES.index(st.session_state.current_language_display),
             key='language_selector_widget' 
