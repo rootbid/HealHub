@@ -6,3 +6,5 @@ scipy
 requests
 soundfile
 pydub
+fuzzywuzzy
+textdistance
