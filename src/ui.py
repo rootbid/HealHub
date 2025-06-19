@@ -6,13 +6,16 @@ import numpy as np # For checking audio data (though not directly used in this v
 from dotenv import load_dotenv
 from typing import Optional
 import re
+from streamlit_mic_recorder import mic_recorder
+import soundfile as sf
+import io
 
 # Adjust import paths
 try:
     from src.nlu_processor import SarvamMNLUProcessor, HealthIntent, NLUResult
     from src.response_generator import HealHubResponseGenerator
     from src.symptom_checker import SymptomChecker
-    from src.audio_capture import CleanAudioCapture, SarvamSTTIntegration # Import audio modules
+    from src.audio_capture import AudioCleaner # Import audio modules
     from src.utils import HealHubUtilities
 except ImportError:
     import sys
@@ -20,7 +23,7 @@ except ImportError:
     from src.nlu_processor import SarvamMNLUProcessor, HealthIntent, NLUResult
     from src.response_generator import HealHubResponseGenerator
     from src.symptom_checker import SymptomChecker
-    from src.audio_capture import CleanAudioCapture, SarvamSTTIntegration
+    from src.audio_capture import AudioCleaner
     from src.utils import HealHubUtilities
 
 # --- Environment and API Key Setup ---
@@ -53,6 +56,10 @@ if 'audio_capturer' not in st.session_state:
     st.session_state.audio_capturer = None
 if 'captured_audio_data' not in st.session_state:
     st.session_state.captured_audio_data = None
+if 'cleaned_audio_data' not in st.session_state:
+    st.session_state.cleaned_audio_data = None
+if "captured_audio_sample_rate" not in st.session_state:
+    st.session_state.captured_audio_sample_rate = 48000
 
 # --- Language Mapping ---
 LANGUAGE_MAP = {
@@ -225,175 +232,157 @@ def generate_and_display_assessment():
 def main_ui():
     st.set_page_config(page_title="HealHub Assistant", layout="wide", initial_sidebar_state="collapsed")
     # st.caption("Your AI healthcare companion. Supporting English and Popular Indic Languages.")
+    hide_and_reclaim_space = """
+        <style>
+            /* Hide the main header */
+            header {visibility: hidden;}
 
-    # Enhanced Recording Visual Cue
-    if st.session_state.voice_input_stage == "recording":
-        st.info("🔴 Recording audio... Speak now. Silence or the 'Stop' button will end recording.", icon="🎤")
+            /* Remove the reserved space for the header */
+            .block-container {
+                padding-top: 1rem;
+            }
 
+            /* Optional: hide hamburger menu and footer */
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+        </style>
+        """
+    st.markdown(hide_and_reclaim_space, unsafe_allow_html=True)
+    
     if not SARVAM_API_KEY: 
         st.error("🚨 SARVAM_API_KEY not found. Please set it in your .env file for the application to function.")
         st.stop()
 
-    col1, col2 = st.columns([6, 6])
+    col1, col2 = st.columns([3, 9])
     with col1:
-        st.title("💬 HealHub Assistant")
+        st.title("💬 HealHub")
         st.caption("Your AI healthcare companion. Supporting English and Popular Indic Languages.")
-    with col2:
         st.markdown(f"<div style='height: 40px;'></div>", unsafe_allow_html=True)
         selected_lang_display = st.selectbox(
-            "Select Language / भाषा चुनें / ভাষা নির্বাচন করুন / भाषा निवडा:",
+            "Select Language / भाषा चुनें / ভাষা নির্বাচন করুন:",
             options=DISPLAY_LANGUAGES,
             index=DISPLAY_LANGUAGES.index(st.session_state.current_language_display),
             key='language_selector_widget' 
         )
-    if selected_lang_display != st.session_state.current_language_display:
-        st.session_state.current_language_display = selected_lang_display
-        st.session_state.current_language_code = LANGUAGE_MAP[selected_lang_display]
-        st.session_state.conversation = [] 
-        st.session_state.symptom_checker_active = False; st.session_state.symptom_checker_instance = None; st.session_state.pending_symptom_question_data = None
-        st.session_state.voice_input_stage = None
-        st.rerun()
+        if selected_lang_display != st.session_state.current_language_display:
+            st.session_state.current_language_display = selected_lang_display
+            st.session_state.current_language_code = LANGUAGE_MAP[selected_lang_display]
+            st.session_state.conversation = [] 
+            st.session_state.symptom_checker_active = False; st.session_state.symptom_checker_instance = None; st.session_state.pending_symptom_question_data = None
+            st.session_state.voice_input_stage = None
+            st.rerun()
 
-    current_lang_code_for_query = st.session_state.current_language_code
+        current_lang_code_for_query = st.session_state.current_language_code
+        if st.session_state.captured_audio_data is not None:
+            with st.spinner("Cleaning the captured audio..."):
+                with io.BytesIO(st.session_state.captured_audio_data) as buffer:
+                    data, sr = sf.read(buffer)
+                # Clean audio
+                cleaner = AudioCleaner()
+                cleaned_data, cleaned_sr = cleaner.get_cleaned_audio(data, sr)
+            ### To test captured and cleaned audio
+            # audio_buffer = io.BytesIO()
+            # sf.write(audio_buffer, cleaned_data, cleaned_sr, format='WAV')
+            # audio_buffer.seek(0)
+            # st.audio(audio_buffer.getvalue(), format="audio/wav")
+            st.session_state.cleaned_audio_data = cleaned_data
+            st.session_state.captured_audio_sample_rate = cleaned_sr
+            st.session_state.voice_input_stage = "processing_stt"
+        
 
-    st.markdown("### Conversation")
-    chat_container = st.container(height=300) 
-    with chat_container:
-        util = HealHubUtilities(api_key=SARVAM_API_KEY)
-        user_lang = st.session_state.current_language_code
-        idx = 0
-        for msg_data in st.session_state.conversation:
-            idx += 1
-            role = msg_data.get("role", "system"); content = msg_data.get("content", "")
-            avatar = "🧑‍💻" if role == "user" else "⚕️"
-            if role == "user":
-                with st.chat_message(role, avatar=avatar):
-                    lang_display = msg_data.get('lang', st.session_state.current_language_code.split('-')[0])
-                    st.markdown(f"{content} *({lang_display})*")
-            elif role == "assistant":
-                with st.chat_message(role, avatar=avatar): 
-                    st.markdown(content) 
-                    speak_key = f"speak_{idx}"
-                    if st.button("🔊 Speak", key=speak_key):
-                        with st.spinner("Synthesizing speech..."):
-                            audio_bytes = util.synthesize_speech(content, user_lang)
-                            st.audio(audio_bytes, format="audio/wav")
-            else:
-                with st.chat_message(role, avatar="ℹ️"): st.markdown(content)
+        if st.session_state.voice_input_stage == "processing_stt":
+            if st.session_state.cleaned_audio_data is not None:
+                util = HealHubUtilities(api_key=SARVAM_API_KEY)
+                lang_for_stt = st.session_state.current_language_code 
+                try:
+                    with st.spinner("Transcribing audio..."):
+                        stt_result = util.transcribe_audio(
+                            st.session_state.cleaned_audio_data, sample_rate=st.session_state.captured_audio_sample_rate, source_language=lang_for_stt
+                        )
+                    transcribed_text = stt_result.get("transcription")
+                    if lang_for_stt != stt_result.get("language_detected"):
+                        if lang_for_stt == "en-IN":
+                            transcribed_text = util.translate_text_to_english(transcribed_text)
+                        else:
+                            transcribed_text = util.translate_text(transcribed_text, lang_for_stt)
+                    if transcribed_text and transcribed_text.strip():
+                        add_message_to_conversation("user", transcribed_text, lang_code=lang_for_stt.split('-')[0])
+                        process_and_display_response(transcribed_text, lang_for_stt) 
+                    else:
+                        add_message_to_conversation("system", "⚠️ STT failed to transcribe audio or returned empty. Please try again.")
+                except Exception as e:
+                    st.error(f"STT Error: {e}")
+                    add_message_to_conversation("system", f"Sorry, an error occurred during voice transcription. Please try again. (Details: {e})")
+                st.session_state.captured_audio_data = None 
+                st.session_state.cleaned_audio_data = None 
+                st.session_state.voice_input_stage = None 
+                st.rerun()
+            else: 
+                st.session_state.voice_input_stage = None
+                st.rerun()
 
-    is_recording = st.session_state.voice_input_stage == "recording"
-    
-    # Define column width ratios for the input area, send button, and voice recording button
-    COLUMN_WIDTHS = [10, 1, 1]
-    col1, col2, col3 = st.columns(COLUMN_WIDTHS)
+    with col2:
+        st.markdown("### Conversation")
+        chat_container = st.container(height=350) 
+        with chat_container:
+            util = HealHubUtilities(api_key=SARVAM_API_KEY)
+            user_lang = st.session_state.current_language_code
+            idx = 0
+            for msg_data in st.session_state.conversation:
+                idx += 1
+                role = msg_data.get("role", "system"); content = msg_data.get("content", "")
+                avatar = "🧑‍💻" if role == "user" else "⚕️"
+                if role == "user":
+                    with st.chat_message(role, avatar=avatar):
+                        lang_display = msg_data.get('lang', st.session_state.current_language_code.split('-')[0])
+                        st.markdown(f"{content} *({lang_display})*")
+                elif role == "assistant":
+                    with st.chat_message(role, avatar=avatar): 
+                        st.markdown(content) 
+                        speak_key = f"speak_{idx}"
+                        if st.button("🔊 Speak", key=speak_key):
+                            with st.spinner("Synthesizing speech..."):
+                                audio_bytes = util.synthesize_speech(content, user_lang)
+                                st.audio(audio_bytes, format="audio/wav")
+                else:
+                    with st.chat_message(role, avatar="ℹ️"): st.markdown(content)
 
-    with col1:
+        is_recording = st.session_state.voice_input_stage == "recording"
+        
+        # Define column width ratios for the input area, send button, and voice recording button
+        
         input_label = "Type your answer here..." if st.session_state.symptom_checker_active and st.session_state.pending_symptom_question_data else "Type your health query here..."
     
         # Text area widget - its current value is stored in st.session_state.text_query_input_area due to its key
-        st.text_area(input_label, height=100, key="text_query_input_area", disabled=is_recording)
+        st.text_area(input_label, height=70, key="text_query_input_area", disabled=is_recording)
         
         # user_input = st.text_input("Type your query or use voice:", key="user_input")
+        
+        COLUMN_WIDTHS = [1, 1]
+        col21, col22 = st.columns(COLUMN_WIDTHS)
 
-    with col2:
-        st.markdown(f"<div style='height: 55px;'></div>", unsafe_allow_html=True)
-        st.button(
-            "📤 Send", 
-            use_container_width=True, 
-            key="send_button_widget", # Key can be kept if useful for other logic, or removed
-            disabled=is_recording,
-            on_click=handle_text_submission # Assign the callback
-        )
+        with col21:
+            st.button(
+                "📤 Send", 
+                use_container_width=True, 
+                key="send_button_widget", # Key can be kept if useful for other logic, or removed
+                disabled=is_recording,
+                on_click=handle_text_submission # Assign the callback
+            )
 
-    with col3:
-        st.markdown(f"<div style='height: 55px;'></div>", unsafe_allow_html=True)
-        record_voice_button_text = "⏹️ Stop" if st.session_state.voice_input_stage == "recording" else "🎙️ Record"
-        record_voice_button = st.button(record_voice_button_text, use_container_width=True, key="record_voice_button_widget")
-
-
-    # --- Voice Input Logic (remains largely the same, but text submission is handled by callback) ---
-    if record_voice_button: # This handles the click of the voice button
-        if is_recording: 
-            if st.session_state.audio_capturer:
-                st.session_state.audio_capturer.stop_recording() 
-            st.session_state.voice_input_stage = "transcribing" 
+        with col22:
+            audio = mic_recorder(
+                start_prompt="🎙️ Record",
+                stop_prompt="⏹️ Stop",
+                just_once=True,  # Only returns audio once after recording
+                use_container_width=True,
+                format="wav",    # Or "webm" if you prefer
+                key="voice_recorder"
+            )
+        
+        if audio:
+            st.session_state.captured_audio_data = audio['bytes']
             st.rerun()
-        else: 
-            st.session_state.voice_input_stage = "recording"
-            st.session_state.captured_audio_data = None 
-            if st.session_state.audio_capturer is None: 
-                try:
-                    print("Initializing CleanAudioCapture...")
-                    st.session_state.audio_capturer = CleanAudioCapture(sample_rate=48000)
-                    print("CleanAudioCapture initialized successfully")
-                except Exception as init_error:
-                    st.error(f"Failed to initialize audio capture: {init_error}")
-                    print(f"Detailed initialization error: {init_error}")
-                    st.session_state.voice_input_stage = None
-                    st.rerun()
-            try:
-                print("Starting audio recording...")
-                st.session_state.audio_capturer.start_recording()
-                print("Audio recording started successfully")
-                if not st.session_state.conversation or st.session_state.conversation[-1].get("content") != "🎤 Voice recording started... Speak now. Silence will stop it, or click 'Stop & Process'.":
-                    add_message_to_conversation("system", "🎤 Voice recording started... Speak now. Silence will stop it, or click 'Stop & Process'.")
-
-            except Exception as e:
-                st.error(f"Failed to start recording: {e}. Ensure microphone is connected and permissions are granted.")
-                add_message_to_conversation("system", f"Error: Could not start voice recording. Please check microphone permissions. (Details: {e})")
-                st.session_state.voice_input_stage = None
-            st.rerun()
-
-    # State machine for voice processing (remains the same)
-    if st.session_state.voice_input_stage == "recording":
-        if st.session_state.audio_capturer and not st.session_state.audio_capturer.is_recording:
-            st.session_state.voice_input_stage = "transcribing"
-            st.rerun()
-        else:
-            time.sleep(0.1) 
-            if st.session_state.audio_capturer and not st.session_state.audio_capturer.is_recording: # Check again
-                 st.session_state.voice_input_stage = "transcribing"
-            st.rerun() 
-
-    if st.session_state.voice_input_stage == "transcribing":
-        cleaned_audio = None
-        if st.session_state.audio_capturer:
-            cleaned_audio = st.session_state.audio_capturer.get_cleaned_audio()
-        if cleaned_audio is not None and len(cleaned_audio) > 0:
-            if not st.session_state.conversation or st.session_state.conversation[-1].get("content") != "🎙️ Audio captured. Transcribing...":
-                add_message_to_conversation("system", "🎙️ Audio captured. Transcribing...")
-            st.session_state.captured_audio_data = cleaned_audio 
-            st.session_state.voice_input_stage = "processing_stt"
-        else:
-            add_message_to_conversation("system", "⚠️ No valid audio captured. Please try again.")
-            st.session_state.voice_input_stage = None
-        st.rerun()
-
-    if st.session_state.voice_input_stage == "processing_stt":
-        if st.session_state.captured_audio_data is not None:
-            stt_service = SarvamSTTIntegration(api_key=SARVAM_API_KEY)
-            lang_for_stt = st.session_state.current_language_code 
-            try:
-                with st.spinner("Transcribing audio..."):
-                    stt_result = stt_service.transcribe_audio(
-                        st.session_state.captured_audio_data, sample_rate=16000, source_language=lang_for_stt
-                    )
-                transcribed_text = stt_result.get("transcription")
-                if transcribed_text and transcribed_text.strip():
-                    add_message_to_conversation("user", transcribed_text, lang_code=lang_for_stt.split('-')[0])
-                    process_and_display_response(transcribed_text, lang_for_stt) 
-                else:
-                    add_message_to_conversation("system", "⚠️ STT failed to transcribe audio or returned empty. Please try again.")
-            except Exception as e:
-                st.error(f"STT Error: {e}")
-                add_message_to_conversation("system", f"Sorry, an error occurred during voice transcription. Please try again. (Details: {e})")
-            st.session_state.captured_audio_data = None 
-            st.session_state.voice_input_stage = None 
-            st.rerun()
-        else: 
-            st.session_state.voice_input_stage = None
-            st.rerun()
-
     # The old `if send_button and user_query_text_from_area:` block is now removed,
     # as its logic is handled by the handle_text_submission callback.
 

@@ -1,5 +1,4 @@
 import sounddevice as sd
-import soundfile as sf
 import numpy as np
 import queue
 import threading
@@ -10,67 +9,113 @@ from scipy.io import wavfile
 import requests
 import io
 
+try:
+    from src.utils import HealHubUtilities
+except ImportError:
+    import sys
+    sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+    from src.utils import HealHubUtilities
+
 class AudioCleaner:
-    """Audio processing utilities for cleaning speech audio"""
-    
+    """
+    Audio Cleaner:
+    - Mono conversion
+    - Resampling (using scipy)
+    - Silence removal (using RMS)
+    - Noise reduction (median filter + high-pass filter)
+    - Voice frequency enhancement
+    - Normalization (target dBFS or peak level)
+    """
+
+    def __init__(self, target_sr=16000, target_dbfs=-20, target_level=0.7):
+        self.target_sr = target_sr
+        self.target_dbfs = target_dbfs
+        self.target_level = target_level
+
     @staticmethod
-    def remove_silence(audio_data, sample_rate, silence_threshold=0.01, min_silence_duration=0.5):
-        """Remove silence segments from audio"""
-        # Calculate frame size for the minimum silence duration
-        frame_size = int(min_silence_duration * sample_rate)
-        
-        # Calculate RMS energy for each frame
+    def convert_to_mono(data):
+        if len(data.shape) > 1:
+            return np.mean(data, axis=1)
+        return data
+
+    @staticmethod
+    def resample_audio(data, sr, target_sr):
+        if sr != target_sr:
+            gcd = np.gcd(sr, target_sr)
+            up = target_sr // gcd
+            down = sr // gcd
+            data = signal.resample_poly(data, up, down)
+        return data, target_sr
+
+    @staticmethod
+    def remove_silence_rms(data, sr, silence_threshold=0.01, min_silence_duration=0.2):
+        frame_size = int(min_silence_duration * sr)
         frames = []
-        for i in range(0, len(audio_data), frame_size):
-            frame = audio_data[i:i + frame_size]
+        for i in range(0, len(data), frame_size):
+            frame = data[i:i + frame_size]
             if len(frame) > 0:
                 rms = np.sqrt(np.mean(frame**2))
                 frames.append((i, i + len(frame), rms > silence_threshold))
-        
-        # Keep only non-silent frames
-        cleaned_audio = []
-        for start, end, is_voice in frames:
-            if is_voice:
-                cleaned_audio.append(audio_data[start:end])
-        
+
+        cleaned_audio = [data[start:end] for start, end, is_voice in frames if is_voice]
         return np.concatenate(cleaned_audio) if cleaned_audio else np.array([])
-    
+
     @staticmethod
-    def apply_noise_reduction(audio_data, sample_rate):
-        """Apply basic noise reduction using spectral subtraction"""
-        # Apply a high-pass filter to remove low-frequency noise
-        nyquist = sample_rate / 2
-        high_cutoff = 80  # Remove frequencies below 80 Hz
-        
-        if high_cutoff < nyquist:
-            sos = signal.butter(4, high_cutoff / nyquist, btype='high', output='sos')
-            filtered_audio = signal.sosfilt(sos, audio_data)
-        else:
-            filtered_audio = audio_data
-        
-        return filtered_audio
-    
+    def apply_noise_reduction(data, sr, median_filter=True, high_pass=True):
+        if median_filter:
+            data = signal.medfilt(data, kernel_size=3)
+        if high_pass:
+            nyquist = sr / 2
+            cutoff = 80  # Hz
+            if cutoff < nyquist:
+                sos = signal.butter(4, cutoff / nyquist, btype='high', output='sos')
+                data = signal.sosfilt(sos, data)
+        return data
+
     @staticmethod
-    def normalize_audio(audio_data, target_level=0.7):
-        """Normalize audio to target level"""
-        max_val = np.max(np.abs(audio_data))
+    def enhance_voice_frequencies(data, sr, low_freq=300, high_freq=3400):
+        nyquist = sr / 2
+        sos = signal.butter(4, [low_freq / nyquist, high_freq / nyquist], btype='band', output='sos')
+        return signal.sosfilt(sos, data)
+
+    @staticmethod
+    def normalize_audio_dbfs(data, target_dbfs):
+        rms = np.sqrt(np.mean(data**2))
+        if rms > 0:
+            scalar = 10 ** (target_dbfs / 20) / rms
+            data = data * scalar
+        return data
+
+    @staticmethod
+    def normalize_audio_peak(data, target_level):
+        max_val = np.max(np.abs(data))
         if max_val > 0:
-            normalized = audio_data * (target_level / max_val)
-            return normalized
-        return audio_data
-    
-    @staticmethod
-    def apply_voice_enhancement(audio_data, sample_rate):
-        """Enhance voice frequencies (300-3400 Hz)"""
-        nyquist = sample_rate / 2
-        low_cutoff = 300 / nyquist
-        high_cutoff = 3400 / nyquist
-        
-        # Band-pass filter for voice frequencies
-        sos = signal.butter(4, [low_cutoff, high_cutoff], btype='band', output='sos')
-        enhanced_audio = signal.sosfilt(sos, audio_data)
-        
-        return enhanced_audio
+            return data * (target_level / max_val)
+        return data
+
+    def get_cleaned_audio(self, data, sr, use_rms_silence_removal=True, apply_voice_enhance=True):
+        # Step 1: Mono conversion
+        data = self.convert_to_mono(data)
+
+        # Step 2: Resample
+        data, sr = self.resample_audio(data, sr, self.target_sr)
+
+        # Step 3: Silence removal
+        if use_rms_silence_removal:
+            data = self.remove_silence_rms(data, sr)
+
+        # Step 4: Noise reduction
+        data = self.apply_noise_reduction(data, sr)
+
+        # Step 5: Voice enhancement (optional)
+        if apply_voice_enhance:
+            data = self.enhance_voice_frequencies(data, sr)
+
+        # Step 6: Normalization (DBFS and peak)
+        data = self.normalize_audio_dbfs(data, self.target_dbfs)
+        data = self.normalize_audio_peak(data, self.target_level)
+
+        return data, sr
 
 class CleanAudioCapture:
     def __init__(self, sample_rate=48000, channels=1, dtype=np.int16):
@@ -247,62 +292,13 @@ class CleanAudioCapture:
         else:
             print("⚠️ No audio data to save")
 
-class SarvamSTTIntegration:
-    """Integration class for Sarvam's Saarika v2 STT model"""
-    
-    def __init__(self, api_key=None):
-        self.api_key = api_key
-        self.api_url = "https://api.sarvam.ai/speech-to-text" 
-        # Note: Replace with actual Sarvam API endpoint and implementation
-        
-    def transcribe_audio(self, audio_data, sample_rate=48000, source_language="hi-IN"):
-        """
-        Send cleaned audio to Sarvam's Saarika v2 for transcription
-        
-        Args:
-            audio_data: Cleaned audio data (int16)
-            sample_rate: Audio sample rate
-            source_language: Source language code (e.g., "hi-IN", "ta-IN", etc.)
-        """
-        
-        audio_buffer = io.BytesIO()
-        sf.write(audio_buffer, audio_data, sample_rate, format='WAV')
-        audio_buffer.seek(0)
-
-        headers = {
-            "api-subscription-key": self.api_key
-        }
-        files = {
-            "file": ("audio.wav", audio_buffer, "audio/wav")
-        }
-        data = {
-            "language": source_language
-        }
-
-        try:
-            response = requests.post(self.api_url, headers=headers, files=files, data=data, timeout=60)
-            response.raise_for_status()
-            result = response.json()
-            transcription = result.get("transcript", "")
-            language_detected = result.get("language_code", source_language)
-            return {
-                "transcription": transcription,
-                "language_detected": language_detected
-            }
-        except requests.RequestException as e:
-            print(f"❌ Sarvam STT API call failed: {e}")
-            return {
-                "transcription": "",
-                "language_detected": source_language
-            }
-
 # Main usage example
 def main():
     """Example usage of the clean audio capture system"""
     
     # Initialize components
     audio_capture = CleanAudioCapture(sample_rate=48000)
-    stt_service = SarvamSTTIntegration()
+    util = HealHubUtilities()
     
     try:
         # Start recording
@@ -320,7 +316,7 @@ def main():
             audio_capture.save_audio(cleaned_audio, "cleaned_audio.wav")
             
             # Send to Sarvam STT
-            result = stt_service.transcribe_audio(
+            result = util.transcribe_audio(
                 cleaned_audio, 
                 sample_rate=audio_capture.sample_rate,
                 source_language="hi-IN"  # Change as needed
