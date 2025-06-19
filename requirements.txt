@@ -8,3 +8,4 @@ soundfile
 pydub
 fuzzywuzzy
 textdistance
+streamlit-mic-recorder
