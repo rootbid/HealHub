@@ -6,13 +6,15 @@ import numpy as np # For checking audio data (though not directly used in this v
 from dotenv import load_dotenv
 from typing import Optional
 import re
+from streamlit_mic_recorder import mic_recorder
+import soundfile as sf
 
 # Adjust import paths
 try:
     from src.nlu_processor import SarvamMNLUProcessor, HealthIntent, NLUResult
     from src.response_generator import HealHubResponseGenerator
     from src.symptom_checker import SymptomChecker
-    from src.audio_capture import CleanAudioCapture, SarvamSTTIntegration # Import audio modules
+    from src.audio_capture import AudioCleanerUsingLib, CleanAudioCapture, SarvamSTTIntegration # Import audio modules
     from src.utils import HealHubUtilities
 except ImportError:
     import sys
@@ -20,7 +22,7 @@ except ImportError:
     from src.nlu_processor import SarvamMNLUProcessor, HealthIntent, NLUResult
     from src.response_generator import HealHubResponseGenerator
     from src.symptom_checker import SymptomChecker
-    from src.audio_capture import CleanAudioCapture, SarvamSTTIntegration
+    from src.audio_capture import AudioCleanerUsingLib, CleanAudioCapture, SarvamSTTIntegration
     from src.utils import HealHubUtilities
 
 # --- Environment and API Key Setup ---
@@ -53,6 +55,8 @@ if 'audio_capturer' not in st.session_state:
     st.session_state.audio_capturer = None
 if 'captured_audio_data' not in st.session_state:
     st.session_state.captured_audio_data = None
+if "audio_bytes" not in st.session_state:
+    st.session_state.audio_bytes = None
 
 # --- Language Mapping ---
 LANGUAGE_MAP = {
@@ -307,67 +311,92 @@ def main_ui():
 
     with col3:
         st.markdown(f"<div style='height: 55px;'></div>", unsafe_allow_html=True)
-        record_voice_button_text = "⏹️ Stop" if st.session_state.voice_input_stage == "recording" else "🎙️ Record"
-        record_voice_button = st.button(record_voice_button_text, use_container_width=True, key="record_voice_button_widget")
+        audio = mic_recorder(
+            start_prompt="🎙️ Rec.",
+            stop_prompt="⏹️ Stop",
+            just_once=True,  # Only returns audio once after recording
+            use_container_width=True,
+            format="wav",    # Or "webm" if you prefer
+            key="voice_recorder"
+        )
+        # record_voice_button_text = "⏹️ Stop" if st.session_state.voice_input_stage == "recording" else "🎙️ Record"
+        # record_voice_button = st.button(record_voice_button_text, use_container_width=True, key="record_voice_button_widget")
 
 
     # --- Voice Input Logic (remains largely the same, but text submission is handled by callback) ---
-    if record_voice_button: # This handles the click of the voice button
-        if is_recording: 
-            if st.session_state.audio_capturer:
-                st.session_state.audio_capturer.stop_recording() 
-            st.session_state.voice_input_stage = "transcribing" 
-            st.rerun()
-        else: 
-            st.session_state.voice_input_stage = "recording"
-            st.session_state.captured_audio_data = None 
-            if st.session_state.audio_capturer is None: 
-                try:
-                    print("Initializing CleanAudioCapture...")
-                    st.session_state.audio_capturer = CleanAudioCapture(sample_rate=48000)
-                    print("CleanAudioCapture initialized successfully")
-                except Exception as init_error:
-                    st.error(f"Failed to initialize audio capture: {init_error}")
-                    print(f"Detailed initialization error: {init_error}")
-                    st.session_state.voice_input_stage = None
-                    st.rerun()
-            try:
-                print("Starting audio recording...")
-                st.session_state.audio_capturer.start_recording()
-                print("Audio recording started successfully")
-                if not st.session_state.conversation or st.session_state.conversation[-1].get("content") != "🎤 Voice recording started... Speak now. Silence will stop it, or click 'Stop & Process'.":
-                    add_message_to_conversation("system", "🎤 Voice recording started... Speak now. Silence will stop it, or click 'Stop & Process'.")
+    # if record_voice_button: # This handles the click of the voice button
+    #     if is_recording: 
+    #         if st.session_state.audio_capturer:
+    #             st.session_state.audio_capturer.stop_recording() 
+    #         st.session_state.voice_input_stage = "transcribing" 
+    #         st.rerun()
+    #     else: 
+    #         st.session_state.voice_input_stage = "recording"
+    #         st.session_state.captured_audio_data = None 
+    #         if st.session_state.audio_capturer is None: 
+    #             try:
+    #                 print("Initializing CleanAudioCapture...")
+    #                 st.session_state.audio_capturer = CleanAudioCapture(sample_rate=48000)
+    #                 print("CleanAudioCapture initialized successfully")
+    #             except Exception as init_error:
+    #                 st.error(f"Failed to initialize audio capture: {init_error}")
+    #                 print(f"Detailed initialization error: {init_error}")
+    #                 st.session_state.voice_input_stage = None
+    #                 st.rerun()
+    #         try:
+    #             print("Starting audio recording...")
+    #             # st.session_state.audio_capturer.start_recording()
+    #             audio = mic_recorder(start_prompt=None, stop_prompt="■ Stop", use_container_width=True)
+    #             if audio:
+    #                 st.session_state.audio_bytes = audio['bytes']
+    #             # print("Audio recording started successfully")
+    #             # if not st.session_state.conversation or st.session_state.conversation[-1].get("content") != "🎤 Voice recording started... Speak now. Silence will stop it, or click 'Stop & Process'.":
+    #             #     add_message_to_conversation("system", "🎤 Voice recording started... Speak now. Silence will stop it, or click 'Stop & Process'.")
 
-            except Exception as e:
-                st.error(f"Failed to start recording: {e}. Ensure microphone is connected and permissions are granted.")
-                add_message_to_conversation("system", f"Error: Could not start voice recording. Please check microphone permissions. (Details: {e})")
-                st.session_state.voice_input_stage = None
-            st.rerun()
+    #         except Exception as e:
+    #             st.error(f"Failed to start recording: {e}. Ensure microphone is connected and permissions are granted.")
+    #             add_message_to_conversation("system", f"Error: Could not start voice recording. Please check microphone permissions. (Details: {e})")
+    #             st.session_state.voice_input_stage = None
+    #         st.rerun()
 
-    # State machine for voice processing (remains the same)
-    if st.session_state.voice_input_stage == "recording":
-        if st.session_state.audio_capturer and not st.session_state.audio_capturer.is_recording:
-            st.session_state.voice_input_stage = "transcribing"
-            st.rerun()
-        else:
-            time.sleep(0.1) 
-            if st.session_state.audio_capturer and not st.session_state.audio_capturer.is_recording: # Check again
-                 st.session_state.voice_input_stage = "transcribing"
-            st.rerun() 
+    if audio:
+        # st.audio(audio['bytes'], format="audio/wav")
+        # Read audio bytes to numpy
+        with st.spinner("Cleaning the captured audio..."):
+            with io.BytesIO(audio['bytes']) as buffer:
+                data, sr = sf.read(buffer)
+            # Clean audio
+            cleaner = AudioCleanerUsingLib()
+            cleaned_data, cleaned_sr = cleaner.get_cleaned_audio(data, sr)
+        # st.audio(cleaned_buffer.getvalue(), format="audio/wav") # To test captured and cleaned audio
+        st.session_state.captured_audio_data = cleaned_data
+        st.session_state.voice_input_stage = "processing_stt"
+    
+    
+    # # State machine for voice processing (remains the same)
+    # if st.session_state.voice_input_stage == "recording":
+    #     if st.session_state.audio_capturer and not st.session_state.audio_capturer.is_recording:
+    #         st.session_state.voice_input_stage = "transcribing"
+    #         st.rerun()
+    #     else:
+    #         time.sleep(0.1) 
+    #         if st.session_state.audio_capturer and not st.session_state.audio_capturer.is_recording: # Check again
+    #              st.session_state.voice_input_stage = "transcribing"
+    #         st.rerun() 
 
-    if st.session_state.voice_input_stage == "transcribing":
-        cleaned_audio = None
-        if st.session_state.audio_capturer:
-            cleaned_audio = st.session_state.audio_capturer.get_cleaned_audio()
-        if cleaned_audio is not None and len(cleaned_audio) > 0:
-            if not st.session_state.conversation or st.session_state.conversation[-1].get("content") != "🎙️ Audio captured. Transcribing...":
-                add_message_to_conversation("system", "🎙️ Audio captured. Transcribing...")
-            st.session_state.captured_audio_data = cleaned_audio 
-            st.session_state.voice_input_stage = "processing_stt"
-        else:
-            add_message_to_conversation("system", "⚠️ No valid audio captured. Please try again.")
-            st.session_state.voice_input_stage = None
-        st.rerun()
+    # if st.session_state.voice_input_stage == "transcribing":
+    #     cleaned_audio = None
+    #     if st.session_state.audio_capturer:
+    #         cleaned_audio = st.session_state.audio_capturer.get_cleaned_audio()
+    #     if cleaned_audio is not None and len(cleaned_audio) > 0:
+    #         if not st.session_state.conversation or st.session_state.conversation[-1].get("content") != "🎙️ Audio captured. Transcribing...":
+    #             add_message_to_conversation("system", "🎙️ Audio captured. Transcribing...")
+    #         st.session_state.captured_audio_data = cleaned_audio 
+    #         st.session_state.voice_input_stage = "processing_stt"
+    #     else:
+    #         add_message_to_conversation("system", "⚠️ No valid audio captured. Please try again.")
+    #         st.session_state.voice_input_stage = None
+    #     st.rerun()
 
     if st.session_state.voice_input_stage == "processing_stt":
         if st.session_state.captured_audio_data is not None:
@@ -375,6 +404,7 @@ def main_ui():
             lang_for_stt = st.session_state.current_language_code 
             try:
                 with st.spinner("Transcribing audio..."):
+                    print('entered this block')
                     stt_result = stt_service.transcribe_audio(
                         st.session_state.captured_audio_data, sample_rate=16000, source_language=lang_for_stt
                     )

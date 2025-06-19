@@ -9,6 +9,45 @@ from scipy import signal
 from scipy.io import wavfile
 import requests
 import io
+import librosa
+
+class AudioCleanerUsingLib:
+    """
+    Cleans audio for speech recognition:
+    - Mono conversion
+    - Resampling
+    - Silence trimming
+    - Noise reduction
+    - Normalization
+    """
+
+    def __init__(self, target_sr=16000, target_dbfs=-20):
+        self.target_sr = target_sr
+        self.target_dbfs = target_dbfs
+
+    def get_cleaned_audio(self, data, sr):
+        # 1. Convert to mono
+        if len(data.shape) > 1:
+            data = np.mean(data, axis=1)
+
+        # 2. Resample
+        if sr != self.target_sr:
+            data = librosa.resample(data, orig_sr=sr, target_sr=self.target_sr)
+            sr = self.target_sr
+
+        # 3. Trim silence
+        data, _ = librosa.effects.trim(data, top_db=25)
+
+        # 4. Noise reduction (simple median filter)
+        data = signal.medfilt(data, kernel_size=3)
+
+        # 5. Normalize
+        rms = np.sqrt(np.mean(data**2))
+        if rms > 0:
+            scalar = 10 ** (self.target_dbfs / 20) / rms
+            data = data * scalar
+
+        return data, sr
 
 class AudioCleaner:
     """Audio processing utilities for cleaning speech audio"""
