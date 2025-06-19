@@ -198,7 +198,7 @@ class HealHubUtilities:
             response = requests.post(
                 f"{self.base_api_url}/speech-to-text",
                 headers=headers,
-                json=payload,
+                data=payload,
                 files=files,
                 timeout=60
             )
