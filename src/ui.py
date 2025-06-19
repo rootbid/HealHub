@@ -15,7 +15,7 @@ try:
     from src.nlu_processor import SarvamMNLUProcessor, HealthIntent, NLUResult
     from src.response_generator import HealHubResponseGenerator
     from src.symptom_checker import SymptomChecker
-    from src.audio_capture import AudioCleaner, CleanAudioCapture # Import audio modules
+    from src.audio_capture import AudioCleaner # Import audio modules
     from src.utils import HealHubUtilities
 except ImportError:
     import sys
@@ -23,7 +23,7 @@ except ImportError:
     from src.nlu_processor import SarvamMNLUProcessor, HealthIntent, NLUResult
     from src.response_generator import HealHubResponseGenerator
     from src.symptom_checker import SymptomChecker
-    from src.audio_capture import AudioCleaner, CleanAudioCapture
+    from src.audio_capture import AudioCleaner
     from src.utils import HealHubUtilities
 
 # --- Environment and API Key Setup ---
