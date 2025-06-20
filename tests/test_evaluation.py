@@ -6,6 +6,7 @@ from datetime import datetime
 from difflib import SequenceMatcher
 import unittest
 import json
+import time
 from dotenv import load_dotenv
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'))
 
@@ -85,6 +86,7 @@ class HealHubEvaluator:
         total_predicted_entities = 0
 
         for case in self.test_cases['nlu']:
+            time.sleep(1)
             # Process test case
             result = self.nlu_processor.process_transcription(
                 case['input_text'],
@@ -165,6 +167,7 @@ class HealHubEvaluator:
                 for question, answer in answers.items():
                     checker.record_answer(symptom, question, answer)
 
+            time.sleep(1)
             assessment = checker.generate_preliminary_assessment()
 
             # Evaluate assessment quality
@@ -218,6 +221,7 @@ class HealHubEvaluator:
                     language_detected="en-IN"
                 )
 
+            time.sleep(30) # Honor API rate limit
             response = self.response_generator.generate_response(
                 case['input_text'],
                 nlu_result

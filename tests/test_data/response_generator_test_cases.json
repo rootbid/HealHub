@@ -2,7 +2,7 @@
   {
     "input_text": "What is diabetes?",
     "nlu_result": {
-      "intent": "GENERAL_QUERY",
+      "intent": "GENERAL_HEALTH",
       "entities": [
         {
           "text": "diabetes",
