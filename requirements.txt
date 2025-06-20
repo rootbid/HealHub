@@ -5,3 +5,7 @@ numpy
 scipy
 requests
 soundfile
+pydub
+fuzzywuzzy
+textdistance
+streamlit-mic-recorder

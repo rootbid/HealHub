@@ -5,6 +5,14 @@ import os
 from typing import List, Dict, Optional, Any
 from enum import Enum # Required for HealthIntent placeholder
 
+
+try:
+    from src.utils import HealHubUtilities
+except ImportError:
+    import sys
+    sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+    from src.utils import HealHubUtilities
+
 # Attempt to import NLUResult from the existing nlu_processor.
 # If running this subtask in isolation and that file isn't in the same root,
 # this import might fail. For the purpose of creating the class structure,
@@ -67,6 +75,7 @@ class SymptomChecker:
     def __init__(self, nlu_result: NLUResult, api_key: Optional[str] = None, symptom_kb_path="src/symptom_knowledge_base.json"):
         self.nlu_result = nlu_result
         self.sarvam_client = SarvamAPIClient(api_key=api_key)
+        self.utils = HealHubUtilities(api_key=api_key)
         self.symptom_kb: Optional[Dict[str, Dict]] = None # Stores symptom_name.lower() -> symptom_data
         self.collected_symptom_details: Dict[str, Dict[str, str]] = {} # symptom_name.lower() -> {question: answer}
         self.pending_follow_up_questions: List[Dict[str, str]] = [] # List of {"symptom_name": str, "question": str}
@@ -100,11 +109,10 @@ class SymptomChecker:
 
         relevant_symptoms_data = []
         processed_symptom_kb_names = set() # Tracks KB symptom names already added
-
+        
         for entity in self.nlu_result.entities:
             if entity.entity_type == "symptom":
-                entity_text_lower = entity.text.lower()
-
+                entity_text_lower = self.utils.translate_text_to_english(entity.text).lower()
                 # Attempt direct match with symptom_name (which are keys in self.symptom_kb)
                 if entity_text_lower in self.symptom_kb and entity_text_lower not in processed_symptom_kb_names:
                     relevant_symptoms_data.append(self.symptom_kb[entity_text_lower])
@@ -166,7 +174,6 @@ class SymptomChecker:
                 # If we have answers for this symptom, we might not need to ask initial follow-ups again.
                 # This logic might need refinement based on how conversations flow.
                 # For now, if any answer is recorded, skip re-adding its general follow-ups.
-                # print(f"ℹ️ Details already collected for {symptom_name_kb}, skipping its follow-up questions.")
                 continue
 
             for question_text in symptom_data.get("follow_up_questions", []):

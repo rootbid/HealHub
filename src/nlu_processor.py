@@ -7,6 +7,74 @@ from dotenv import load_dotenv
 from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass
 from enum import Enum
+from functools import lru_cache
+from fuzzywuzzy import process
+import textdistance
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+with open("src/hinglish_symptoms.json", "r", encoding="utf-8") as f:
+    HINGLISH_SYMPTOMS = json.load(f)
+
+import re
+
+def normalize_hinglish_terms(text: str) -> str:
+    for key, variations in HINGLISH_SYMPTOMS.items():
+        for variant in variations:
+            pattern = r'(?<!\w)' + re.escape(variant) + r'(?!\w)'
+            text = re.sub(pattern, key, text)
+    return text
+
+def tokenize_hinglish_query(text: str) -> List[str]:
+    """Break down Hinglish sentence into individual tokens."""
+    return re.findall(r'\b[\w]+\b', text.lower())
+
+def load_common_misspellings(filepath="src/common_misspellings.json"):
+    import json
+    try:
+        with open(filepath, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception as e:
+        print(f"Could not load misspellings dictionary: {e}")
+        return {}
+
+COMMON_MISSPELLINGS = load_common_misspellings()
+
+@lru_cache(maxsize=256)
+def correct_misspelled_entity(word: str) -> str:
+    # Direct match to key
+    if word.lower() in COMMON_MISSPELLINGS:
+        return word.lower()
+    # Match to value
+    for canonical, variants in COMMON_MISSPELLINGS.items():
+        if word.lower() in [v.lower() for v in variants]:
+            return canonical
+    # Fuzzy match to keys
+    result = process.extractOne(word.lower(), COMMON_MISSPELLINGS.keys())
+    if result is None:
+        return word
+    best_match, score = result
+    return best_match if score > 80 else word
+
+def phonetic_match(word: str, candidates_tuple: tuple) -> str:
+    candidates = list(candidates_tuple)
+    # Add all variant values to candidates
+    for variants in COMMON_MISSPELLINGS.values():
+        candidates.extend(variants)
+    if not candidates:
+        return word
+    best_match = max(
+        candidates,
+        key=lambda c: textdistance.levenshtein.normalized_similarity(word.lower(), c.lower())
+    )
+    if textdistance.levenshtein.normalized_similarity(word.lower(), best_match.lower()) > 0.7:
+        # If best_match is a variant, return its canonical key
+        for canonical, variants in COMMON_MISSPELLINGS.items():
+            if best_match.lower() == canonical.lower() or best_match.lower() in [v.lower() for v in variants]:
+                return canonical
+    return word
 
 class HealthIntent(Enum):
     """Healthcare-specific intents"""
@@ -142,6 +210,17 @@ class SarvamMNLUProcessor:
             self.symptom_kb = []
 
     def process_transcription(self, transcribed_text: str, source_language: str = "hi-IN") -> NLUResult:
+        transcribed_text = normalize_hinglish_terms(transcribed_text)
+
+            # Hinglish intent pre-check
+        hinglish_intent = self.get_intent(transcribed_text)
+        if hinglish_intent == HealthIntent.SYMPTOM_QUERY:
+            intent, intent_confidence = hinglish_intent, 1.0
+        else:
+            intent, intent_confidence = self._classify_intent(transcribed_text, source_language)
+
+        print(f"🧠 Processing NLU for: '{transcribed_text}'")
+
         """
         Process transcribed text through Sarvam-M for NLU
 
@@ -282,6 +361,13 @@ Respond ONLY with JSON format: {"intent": "category_name", "confidence": 0.95}""
 
         return HealthIntent.UNKNOWN, 0.5
 
+    def get_intent(self, text: str) -> HealthIntent:
+        normalized_text = normalize_hinglish_terms(text.lower())
+        for symptom in HINGLISH_SYMPTOMS.keys():
+            if symptom in normalized_text:
+                return HealthIntent.SYMPTOM_QUERY
+        return HealthIntent.GENERAL_HEALTH
+
     def _extract_medical_entities(self, text: str, language: str) -> List[MedicalEntity]:
         """Extract medical entities using real Sarvam-M API"""
 
@@ -317,23 +403,6 @@ Respond ONLY with JSON format:
 
             if response and "choices" in response:
                 content = response["choices"][0]["message"]["content"]
-
-                # Try to find JSON block using regex
-                match = re.search(r"\{.*\}", content, re.DOTALL)
-                if match:
-                    json_str = match.group(0)
-                    try:
-                        result = json.loads(json_str)
-                    except json.JSONDecodeError as e:
-                        print(f"⚠️ Error decoding JSON from extracted string: {e}")
-                        print(f"Extracted string was: {json_str}")
-                        result = {} # Fallback to empty dict if parsing fails
-                else:
-                    # Fallback if no primary JSON block is found by regex
-                    # This can try the old logic or simply assume no valid JSON if regex fails
-                    print(f"⚠️ Could not find a JSON block using regex in content: {content}")
-                    result = {} # Fallback
-
                 entity_list = result.get("entities", [])
 
                 for entity_data in entity_list:
@@ -384,8 +453,20 @@ Respond ONLY with JSON format:
                             augmented_count += 1
             if augmented_count > 0:
                 print(f"ℹ️ Augmented entities with {augmented_count} symptoms from keyword matching.")
-
-        return entities
+        # Apply spelling and phonetic correction to entity texts
+        seen = set()
+        deduped_entities = []
+        for entity in entities:
+            original = entity.text
+            entity.text = correct_misspelled_entity(entity.text)
+            entity.text = phonetic_match(entity.text, tuple(COMMON_MISSPELLINGS.keys()))
+            if entity.text != original:
+                logger.info(f"🔄 Corrected '{original}' to '{entity.text}'")
+            key = (entity.text.lower(), entity.entity_type)
+            if key not in seen:
+                seen.add(key)
+                deduped_entities.append(entity)
+        return deduped_entities
 
     def _is_diagnosis_request(self, text: str) -> bool:
         """Check if text contains diagnosis request patterns"""
