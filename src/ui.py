@@ -347,7 +347,7 @@ def main_ui():
                         f"""
                         <div style="display: flex; justify-content: flex-end; align-items: center; margin-bottom: 0.5rem;">
                             <div style="max-width: 80%; text-align: right; margin-right: 0.5rem;">{content} <b>({lang_display})</b> </div>
-                            <div style="flex-shrink: 0; width: 30px; height: 30px; border-radius: 50%; background-color: #eee; display: flex; align-items: center; justify-content: center;">🧑‍💻</div>
+                            <div style="width: 32px; height: 32px; border-radius: 15%; border: .5px solid #ccc; background-color: transparent; display: flex; align-items: center; justify-content: center;">🧑‍💻</div>
                         </div>
                         """,
                         unsafe_allow_html=True
