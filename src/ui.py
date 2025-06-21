@@ -466,26 +466,5 @@ def feedback_section():
                 st.success("Thank you for your detailed feedback!")
                 st.session_state.feedback_submitted = True
 
-    if st.sidebar.checkbox("🔍 Show Feedback Summary"):
-        try:
-            with open("feedback/feedback_log.jsonl", "r", encoding="utf-8") as f:
-                all_feedback = [json.loads(line) for line in f.readlines()]
-           
-            thumbs_up_count = sum(1 for entry in all_feedback if entry["feedback"] == "thumbs_up")
-            thumbs_down_count = sum(1 for entry in all_feedback if entry["feedback"] == "thumbs_down")
-            st.sidebar.markdown("### 📝 Feedback Summary")
-            st.sidebar.write(f"👍 Thumbs Up: {thumbs_up_count}")
-            st.sidebar.write(f"👎 Thumbs Down: {thumbs_down_count}")
-            st.sidebar.markdown("---")
-            
-            for entry in all_feedback[-10:]:
-                if entry["feedback"] == "text":
-                    st.sidebar.write(f"- {entry['timestamp']}: {entry['text']}")
-                else:
-                    st.sidebar.write(f"- {entry['timestamp']}: {entry['feedback']}")
-        except FileNotFoundError:
-            st.sidebar.info("No feedback submitted yet.")
-
-
 if __name__ == "__main__":
     main_ui()
