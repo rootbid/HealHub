@@ -217,9 +217,7 @@ class CleanAudioCapture:
                     dtype=np.float32,
                     callback=self.audio_callback,
                     blocksize=1024,
-                    device=10  # Stereo Microphone
                 )
-                print(f"Using Stereo Microphone (device 10) at {self.sample_rate} Hz")
             
             print("Starting audio stream...")
             self.stream.start()
