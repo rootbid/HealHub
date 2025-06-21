@@ -336,9 +336,23 @@ def main_ui():
                 role = msg_data.get("role", "system"); content = msg_data.get("content", "")
                 avatar = "🧑‍💻" if role == "user" else "⚕️"
                 if role == "user":
-                    with st.chat_message(role, avatar=avatar):
-                        lang_display = msg_data.get('lang', st.session_state.current_language_code.split('-')[0])
-                        st.markdown(f"{content} *({lang_display})*")
+                    # with st.chat_message(role):
+                    lang_display = msg_data.get('lang', st.session_state.current_language_code.split('-')[0])
+                    # st.markdown(f"""
+                    #     <div style="text-align: right;">{content} *({lang_display})*</div>
+                    #     """,
+                    #     unsafe_allow_html=True
+                    # )
+                    st.markdown(
+                        f"""
+                        <div style="display: flex; justify-content: flex-end; align-items: center; margin-bottom: 0.5rem;">
+                            <div style="max-width: 80%; text-align: right; margin-right: 0.5rem;">{content} <b>({lang_display})</b> </div>
+                            <div style="flex-shrink: 0; width: 30px; height: 30px; border-radius: 50%; background-color: #eee; display: flex; align-items: center; justify-content: center;">🧑‍💻</div>
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
+                    # st.markdown(f"{content} *({lang_display})*")
                 elif role == "assistant":
                     with st.chat_message(role, avatar=avatar): 
                         st.markdown(content) 
