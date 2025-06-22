@@ -147,6 +147,21 @@ python main.py
 *   **Microphone Permissions**: Users will need to grant microphone permissions to their browser for the voice input feature to work.
 *   **HTTPS Required**: For browsers to allow microphone access, the application must be served over HTTPS. Streamlit Community Cloud provides this by default. If you are self-hosting in a way that results in an HTTP URL, voice input might not work on many browsers. Localhost is often an exception.
 
+## HealHub Assistant – Demo
+
+### Quick Preview (GIF)
+
+![App Preview](demo/demo.gif)
+
+> Quick visual demo of the app (silent preview).
+
+
+### Try It Live on Streamlit
+
+[![Launch App](https://img.shields.io/badge/🚀_Launch_App-brightgreen?logo=streamlit&style=for-the-badge)](https://healhuub.streamlit.app/)
+
+> Open in your browser — no setup needed. Allow microphone access when prompted.
+
 ## Test Evaluations
 See TESTING.md
 
