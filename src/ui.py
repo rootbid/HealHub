@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import os
 import json
 import time # For polling audio capture status
@@ -10,6 +11,8 @@ from streamlit_mic_recorder import mic_recorder
 import soundfile as sf
 import io
 from datetime import datetime
+import firebase_admin
+from firebase_admin import credentials, firestore
 
 # Adjust import paths
 try:
@@ -76,6 +79,33 @@ LANGUAGE_MAP = {
 
 DISPLAY_LANGUAGES = list(LANGUAGE_MAP.keys())
 
+
+if not firebase_admin._apps:
+    # Load credentials from Streamlit secrets
+    try:
+        cred_dict = {
+            "type": st.secrets["firebase"]["type"],
+            "project_id": st.secrets["firebase"]["project_id"],
+            "private_key_id": st.secrets["firebase"]["private_key_id"],
+            "private_key": st.secrets["firebase"]["private_key"].replace('\\n', '\n'), # Important for newlines
+            "client_email": st.secrets["firebase"]["client_email"],
+            "client_id": st.secrets["firebase"]["client_id"],
+            "auth_uri": st.secrets["firebase"]["auth_uri"],
+            "token_uri": st.secrets["firebase"]["token_uri"],
+            "auth_provider_x509_cert_url": st.secrets["firebase"]["auth_provider_x509_cert_url"],
+            "client_x509_cert_url": st.secrets["firebase"]["client_x509_cert_url"],
+            "universe_domain": st.secrets["firebase"]["universe_domain"]
+        }
+        cred = credentials.Certificate(cred_dict)
+        firebase_admin.initialize_app(cred)
+        st.success("Firebase initialized!") # For debugging
+    except Exception as e:
+        st.error(f"Error initializing Firebase: {e}")
+        st.info("Please ensure your .streamlit/secrets.toml is correctly configured with Firebase credentials.")
+        st.stop() # Stop the app if Firebase fails to initialize
+
+db = firestore.client()
+
 # --- Helper Functions ---
 def add_message_to_conversation(role: str, content: str, lang_code: Optional[str] = None):
     message = {"role": role, "content": content}
@@ -83,15 +113,36 @@ def add_message_to_conversation(role: str, content: str, lang_code: Optional[str
         message["lang"] = lang_code 
     st.session_state.conversation.append(message)
 
-    # To reset feedback form after each new assistant response
-    if role == "assistant":
-        st.session_state.feedback_submitted = False
+def store_feedback(feedback_text, user_email, ml_generated_text, full_conversation):
+    try:
+        # Prepare feedback data
+        feedback_data = {
+            "timestamp": datetime.now(), # Store current timestamp
+            "user_email": user_email if user_email.strip() else "Anonymous",
+            "feedback_text": feedback_text,
+            "ml_generated_text": ml_generated_text,
+            "full_conversation": full_conversation,
+        }
+
+        # Add data to Firestore
+        # Create a new document in the 'feedback' collection
+        db.collection("feedback").add(feedback_data)
+        st.success("Thank you for your feedback! It has been submitted.")
+        return True
+        # Optionally clear the form
+        feedback_text = ""
+        user_email = ""
+    except Exception as e:
+        st.error(f"An error occurred while submitting feedback: {e}")
+        return False
+
+
 
 # --- Streamlit UI ---
 def main_ui():
     st.set_page_config(page_title="HealHub Assistant", layout="wide", initial_sidebar_state="collapsed")
     # st.caption("Your AI healthcare companion. Supporting English and Popular Indic Languages.")
-    hide_and_reclaim_space = """
+    header_css = """
         <style>
             /* Hide the main header */
             header {visibility: hidden;}
@@ -104,9 +155,27 @@ def main_ui():
             /* Optional: hide hamburger menu and footer */
             #MainMenu {visibility: hidden;}
             footer {visibility: hidden;}
+
+            .feedback-button {
+                background-color: transparent;
+                border: none;
+                color: var(--text-color);
+                font-size: 1.2rem;
+                cursor: pointer;
+                margin-right: 0rem;
+            }
+            .feedback-button:hover {
+                opacity: 0.8;
+            }
+            .feedback-container {
+                display: flex;
+                justify-content: flex-end;
+                gap: 0.75rem;
+                margin-bottom: 0.5rem;
+            }
         </style>
         """
-    st.markdown(hide_and_reclaim_space, unsafe_allow_html=True)
+    st.markdown(header_css, unsafe_allow_html=True)
     
     if not SARVAM_API_KEY: 
         st.error("🚨 SARVAM_API_KEY not found. Please set it in your .env file for the application to function.")
@@ -230,7 +299,6 @@ def main_ui():
                 process_and_display_response(user_input, current_lang_code)
             
             st.session_state.text_query_input_area = "" # Clear the text area state for next render
-            # No explicit st.rerun() here, on_click handles it for buttons.
             # If called from a non-button context that needs immediate UI update, rerun might be needed.
 
         def generate_and_display_assessment():
@@ -330,44 +398,121 @@ def main_ui():
                 st.rerun()
 
     with col2:
+
+        def handle_good_feedback(idx, content):
+            store_feedback("It's a good feedback", "", content, st.session_state.conversation)
+    
         st.markdown("### Conversation")
         chat_container = st.container(height=350) 
         with chat_container:
             util = HealHubUtilities(api_key=SARVAM_API_KEY)
             user_lang = st.session_state.current_language_code
-            idx = 0
-            for msg_data in st.session_state.conversation:
-                idx += 1
-                role = msg_data.get("role", "system"); content = msg_data.get("content", "")
-                avatar = "🧑‍💻" if role == "user" else "⚕️"
+            for idx, msg_data in enumerate(st.session_state.conversation):
+                role = msg_data.get("role", "system") 
+                content = msg_data.get("content", "")
+                lang_display = msg_data.get('lang', st.session_state.current_language_code.split('-')[0])
+
                 if role == "user":
-                    # with st.chat_message(role):
-                    lang_display = msg_data.get('lang', st.session_state.current_language_code.split('-')[0])
-                    # st.markdown(f"""
-                    #     <div style="text-align: right;">{content} *({lang_display})*</div>
-                    #     """,
-                    #     unsafe_allow_html=True
-                    # )
-                    st.markdown(
-                        f"""
-                        <div style="display: flex; justify-content: flex-end; align-items: center; margin-bottom: 0.5rem;">
-                            <div style="max-width: 80%; text-align: right; margin-right: 0.5rem;">{content} <b>({lang_display})</b> </div>
-                            <div style="width: 32px; height: 32px; border-radius: 15%; border: .5px solid #ccc; background-color: transparent; display: flex; align-items: center; justify-content: center;">🧑‍💻</div>
+                    st.markdown(f"""
+                        <div style="display: flex; justify-content: flex-end; align-items: flex-start; gap: 0.5rem; margin-bottom: 0.3rem;">                            
+                            <div style="
+                                background-color: rgba(183,183,183,0.25);
+                                padding: 0.4rem 0.7rem;
+                                border-radius: 0.6rem;
+                                max-width: 75%;
+                                text-align: right;
+                                word-wrap: break-word;">{content}</div>
+                            <div style="
+                                width: 32px; height: 32px;
+                                border-radius: 50%;
+                                border: 2px solid rgba(183,183,183, 0.5);
+                                background-color: transparent;
+                                display: flex; align-items: center; justify-content: center;
+                                font-size: 18px;">🧑‍💻</div>
                         </div>
-                        """,
-                        unsafe_allow_html=True
-                    )
-                    # st.markdown(f"{content} *({lang_display})*")
+                    """, unsafe_allow_html=True)
                 elif role == "assistant":
-                    with st.chat_message(role, avatar=avatar): 
-                        st.markdown(content) 
-                        speak_key = f"speak_{idx}"
-                        if st.button("🔊 Speak", key=speak_key):
-                            with st.spinner("Synthesizing speech..."):
+                    st.markdown(f"""
+                        <div style="display: flex; justify-content: flex-start; align-items: flex-start; gap: 0.5rem; margin-bottom: 0.3rem;">
+                            <div style="
+                                width: 32px; height: 32px;
+                                border-radius: 50%;
+                                border: 2px solid rgba(183,183,183, 0.5);
+                                background-color: transparent;
+                                display: flex; align-items: center; justify-content: center;
+                                font-size: 18px;">⚕️</div>
+                            <div style="
+                                background-color: rgba(83,83,83,0.25);
+                                padding: 0.4rem 0.7rem;
+                                border-radius: 0.6rem;
+                                max-width: 75%;
+                                text-align: left;
+                                word-wrap: break-word;">{content}</div>
+                        </div>
+                    """, unsafe_allow_html=True)
+                    clutter, col1, col2, col3, clutter = st.columns([1.75, 1, 1, 1, 30])
+                    audio_bytes = None
+                    with col1:
+                        if st.button("👍", key=f"good_{idx}", type="tertiary", help="Good response"):
+                            handle_good_feedback(idx, content)
+
+                    with col2:
+                        if st.button("👎", key=f"bad_{idx}", type="tertiary", help="Bad response"):
+                            st.session_state[f"negetive_feedback_{idx}"] = True
+
+                    with col3:
+                        if st.button("🔊", key=f"read_{idx}", type="tertiary", help="Read aloud"):
+                            with spinner_placeholder.info("Synthesizing speech..."):
                                 audio_bytes = util.synthesize_speech(content, user_lang)
-                                st.audio(audio_bytes, format="audio/wav")
+                            
+                    if audio_bytes is not None:
+                        st.audio(audio_bytes, format="audio/wav")
+                    if st.session_state.get(f"negetive_feedback_{idx}", False):
+                        with st.expander("Tell us why you disliked this response:", expanded=True):
+                            user_email = st.text_input("Your Email Id", key=f"user_email_{idx}")
+                            feedback_text = st.text_area("Your feedback", key=f"feedback_text_{idx}")
+                            if st.button("Submit Feedback", key=f"submit_feedback_{idx}"):
+                                feedback_response = store_feedback(feedback_text, user_email, content, st.session_state.conversation)
+                                if feedback_response is True:
+                                    st.session_state[f"negetive_feedback_{idx}"] = False  # Reset if needed after submission
+                                    st.rerun()
                 else:
-                    with st.chat_message(role, avatar="ℹ️"): st.markdown(content)
+                    st.markdown(f"""
+                        <div style="display: flex; justify-content: flex-start; align-items: flex-start; gap: 0.5rem; margin-bottom: 0.3rem;">
+                            <div style="
+                                width: 32px; height: 32px;
+                                border-radius: 50%;
+                                border: 2px solid rgba(255, 255, 255, 0.3);
+                                background-color: transparent;
+                                display: flex; align-items: center; justify-content: center;
+                                font-size: 18px;">ℹ️</div>
+                            <div style="
+                                background-color: transparent;
+                                padding: 0.4rem 0.7rem;
+                                border-radius: 0.6rem;
+                                max-width: 75%;
+                                text-align: left;
+                                word-wrap: break-word;">{content}</div>
+                        </div>
+                    """, unsafe_allow_html=True)
+                
+            st.markdown("""
+                <style>
+                    button[kind="tertiary"] {
+                        background: none !important;
+                        border: none !important;
+                        color: inherit !important;
+                        padding: 0 !important;
+                        margin: 0 0 0 0 !important;
+                        font-size: 0rem !important;
+                        line-height: 0 !important;
+                        width: auto !important;
+                        height: auto !important;
+                    }
+                </style>
+            """, unsafe_allow_html=True)
+        
+        
 
         is_recording = st.session_state.voice_input_stage == "recording"
         
@@ -408,63 +553,6 @@ def main_ui():
     # The old `if send_button and user_query_text_from_area:` block is now removed,
     # as its logic is handled by the handle_text_submission callback.
 
-    # --- Feedback Button and Form ---
-    if any(
-        msg["role"] == "assistant"
-        and not msg.get("content", "").strip().startswith("Regarding ")
-        for msg in st.session_state.conversation
-    ):
-        feedback_section()
-
-def feedback_section():
-    st.markdown("---")
-    st.markdown("### 🙋 Was this answer helpful?")
-
-    if "feedback_submitted" not in st.session_state:
-        st.session_state.feedback_submitted = False
-
-    col1, col2 = st.columns(2)
-
-    with col1:
-        if st.button("👍 Yes", key="thumbs_up"):
-            feedback_data = {
-                "timestamp": str(datetime.now()),
-                "feedback": "thumbs_up"
-            }
-            os.makedirs("feedback", exist_ok=True)
-            with open("feedback/feedback_log.jsonl", "a", encoding="utf-8") as f:
-                f.write(json.dumps(feedback_data) + "\n")
-            st.success("Thanks for your feedback!")
-            st.session_state.feedback_submitted = True
-
-    with col2:
-        if st.button("👎 No", key="thumbs_down"):
-            feedback_data = {
-                "timestamp": str(datetime.now()),
-                "feedback": "thumbs_down"
-            }
-            os.makedirs("feedback", exist_ok=True)
-            with open("feedback/feedback_log.jsonl", "a", encoding="utf-8") as f:
-                f.write(json.dumps(feedback_data) + "\n")
-            st.info("Sorry to hear that. Please tell us more below!")
-            st.session_state.feedback_submitted = True
-
-    if not st.session_state.feedback_submitted:
-        st.markdown("#### Additional comments (optional):")
-        with st.form(key='feedback_form'):
-            feedback_text = st.text_area("Your feedback", height=100)
-            submitted = st.form_submit_button("Submit Feedback")
-            if submitted and feedback_text.strip():
-                feedback_data = {
-                    "timestamp": str(datetime.now()),
-                    "feedback": "text",
-                    "text": feedback_text.strip()
-                }
-                os.makedirs("feedback", exist_ok=True)
-                with open("feedback/feedback_log.jsonl", "a", encoding="utf-8") as f:
-                    f.write(json.dumps(feedback_data) + "\n")
-                st.success("Thank you for your detailed feedback!")
-                st.session_state.feedback_submitted = True
 
 if __name__ == "__main__":
     main_ui()
