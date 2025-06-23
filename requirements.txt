@@ -9,3 +9,4 @@ pydub
 fuzzywuzzy
 textdistance
 streamlit-mic-recorder
+firebase-admin
