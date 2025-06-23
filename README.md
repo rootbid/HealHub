@@ -191,6 +191,6 @@ Several enhancements could further improve the application:
 *   **User Profiles and Personalization**: Allow users to create profiles to store preferences (language, etc.) and optionally, a secure health history for more personalized advice (with strong privacy safeguards).
 *   **Integration with External Services**: Explore possibilities for integrating with services like appointment booking, medication reminders, or telemedicine platforms, with user consent.
 *   **Enhanced NLU for Mixed Languages**: Improve handling of queries that mix English with Indian languages (Hinglish, Tanglish, etc.).
-*   **UI/UX Improvements**: Enhance the Streamlit UI (if used) or develop a more robust mobile interface for wider accessibility.
 *   **Refined Prompt Engineering**: Continuously refine system prompts for both general queries and the symptom checker to improve accuracy, tone, and safety of responses.
 *   **Multi-turn Symptom Checking**: Develop a more dynamic multi-turn conversational ability for the symptom checker beyond the current scripted follow-up questions.
+*   **UI/UX Improvements**: Enhance the Streamlit UI or develop a more robust mobile interface for wider accessibility.
