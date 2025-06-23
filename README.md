@@ -93,17 +93,24 @@ The application includes an interactive symptom checker to help users understand
 
 ## Project Structure
 
+- `main.py`: Main application script to run the voice-based Q&A.
 - `src/`: Contains the core application logic.
-    - `main.py`: Main application script to run the voice-based Q&A.
     - `nlu_processor.py`: Handles Natural Language Understanding using Sarvam-M.
+    - `nlu_config.json`: Configuration for intent detection and entity extraction
+    - `hinglish_symptoms.json`: Hinglish symptom mappings for hybrid language support
+    - `common_misspellings.json`: Common misspellings dictionary for text normalization
+    - `prompts.py`: Defines system prompt used by Sarvam-M for response generation
     - `response_generator.py`: Generates responses for standard queries using prompt engineering with Sarvam-M, guided by NLU output.
     - `symptom_checker.py`: Module for interactive symptom analysis and assessment generation.
     - `symptom_knowledge_base.json`: Configuration file for symptoms, keywords, and follow-up questions.
     - `audio_capture.py`: (Placeholder/Actual) For audio input and STT integration.
     - `tts_service.py`: (Placeholder/Actual) For Text-to-Speech integration.
-- `tests/`: Unit tests for various components.
-    - `test_nlu.py`: Unit tests for the NLU processor.
-    - `test_symptom_checker.py`: Unit tests for the SymptomChecker class.
+    - `utils.py`: Utility/helper functions used across modules
+- `tests/`: Unit and evaluation tests for various components.
+    - `test_nlu_corrections.py`: Tests for NLU correction logic and normalization.
+    - `test_nlu_hinglish.py`: Tests Hinglish input parsing and understanding.
+    - `test_evaluation.py`: Evaluates overall system outputs vs expected responses.
+    - `evaluation_results_metrics.json`: JSON log of evaluation metrics and results
 - `.env`: Stores API keys and other environment variables (not tracked by Git).
 - `requirements.txt`: Lists project dependencies.
 - `README.md`: This file.
@@ -111,7 +118,7 @@ The application includes an interactive symptom checker to help users understand
 ## Setup and Usage
 
 ### Prerequisites
-*   Ensure Python 3.8+ is installed.
+*   Ensure Python 3.10+ is installed.
 *   Clone the repository: `git clone <repository-url>`
 *   Navigate to the project directory: `cd <repository-name>`
 *   Create a Python virtual environment (recommended):
