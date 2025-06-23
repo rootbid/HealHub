@@ -80,31 +80,6 @@ LANGUAGE_MAP = {
 DISPLAY_LANGUAGES = list(LANGUAGE_MAP.keys())
 
 
-if not firebase_admin._apps:
-    # Load credentials from Streamlit secrets
-    try:
-        cred_dict = {
-            "type": st.secrets["firebase"]["type"],
-            "project_id": st.secrets["firebase"]["project_id"],
-            "private_key_id": st.secrets["firebase"]["private_key_id"],
-            "private_key": st.secrets["firebase"]["private_key"].replace('\\n', '\n'), # Important for newlines
-            "client_email": st.secrets["firebase"]["client_email"],
-            "client_id": st.secrets["firebase"]["client_id"],
-            "auth_uri": st.secrets["firebase"]["auth_uri"],
-            "token_uri": st.secrets["firebase"]["token_uri"],
-            "auth_provider_x509_cert_url": st.secrets["firebase"]["auth_provider_x509_cert_url"],
-            "client_x509_cert_url": st.secrets["firebase"]["client_x509_cert_url"],
-            "universe_domain": st.secrets["firebase"]["universe_domain"]
-        }
-        cred = credentials.Certificate(cred_dict)
-        firebase_admin.initialize_app(cred)
-        st.success("Firebase initialized!") # For debugging
-    except Exception as e:
-        st.error(f"Error initializing Firebase: {e}")
-        st.info("Please ensure your .streamlit/secrets.toml is correctly configured with Firebase credentials.")
-        st.stop() # Stop the app if Firebase fails to initialize
-
-db = firestore.client()
 
 # --- Helper Functions ---
 def add_message_to_conversation(role: str, content: str, lang_code: Optional[str] = None):
@@ -114,32 +89,60 @@ def add_message_to_conversation(role: str, content: str, lang_code: Optional[str
     st.session_state.conversation.append(message)
 
 
-def store_feedback(feedback_text, user_email, ml_generated_text, full_conversation):
-    try:
-        # Prepare feedback data
-        feedback_data = {
-            "timestamp": datetime.now(), # Store current timestamp
-            "user_email": user_email if user_email.strip() else "Anonymous",
-            "feedback_text": feedback_text,
-            "ml_generated_text": ml_generated_text,
-            "full_conversation": full_conversation,
-        }
-
-        # Add data to Firestore
-        # Create a new document in the 'feedback' collection
-        db.collection("feedback").add(feedback_data)
-        st.success("Thank you for your feedback! It has been submitted.")
-        return True
-        # Optionally clear the form
-        feedback_text = ""
-        user_email = ""
-    except Exception as e:
-        st.error(f"An error occurred while submitting feedback: {e}")
-        return False
-
 # --- Streamlit UI ---
 def main_ui():
-    st.set_page_config(page_title="HealHub Assistant", layout="wide", initial_sidebar_state="collapsed")
+    st.set_page_config(page_title="HealHub", layout="wide", initial_sidebar_state="collapsed")
+
+    if not firebase_admin._apps:
+        # Load credentials from Streamlit secrets
+        try:
+            cred_dict = {
+                "type": st.secrets["firebase"]["type"],
+                "project_id": st.secrets["firebase"]["project_id"],
+                "private_key_id": st.secrets["firebase"]["private_key_id"],
+                "private_key": st.secrets["firebase"]["private_key"].replace('\\n', '\n'), # Important for newlines
+                "client_email": st.secrets["firebase"]["client_email"],
+                "client_id": st.secrets["firebase"]["client_id"],
+                "auth_uri": st.secrets["firebase"]["auth_uri"],
+                "token_uri": st.secrets["firebase"]["token_uri"],
+                "auth_provider_x509_cert_url": st.secrets["firebase"]["auth_provider_x509_cert_url"],
+                "client_x509_cert_url": st.secrets["firebase"]["client_x509_cert_url"],
+                "universe_domain": st.secrets["firebase"]["universe_domain"]
+            }
+            cred = credentials.Certificate(cred_dict)
+            firebase_admin.initialize_app(cred)
+        except Exception as e:
+            st.error(f"Error initializing Firebase: {e}")
+            # st.info("Please ensure your .streamlit/secrets.toml is correctly configured with Firebase credentials.")
+            st.stop() # Stop the app if Firebase fails to initialize
+
+    db = firestore.client()
+
+    def store_feedback(feedback_text, user_email, ml_generated_text, full_conversation):
+        try:
+            # Prepare feedback data
+            feedback_data = {
+                "timestamp": datetime.now(), # Store current timestamp
+                "user_email": user_email if user_email.strip() else "Anonymous",
+                "feedback_text": feedback_text,
+                "ml_generated_text": ml_generated_text,
+                "full_conversation": full_conversation,
+            }
+
+            # Add data to Firestore
+            # Create a new document in the 'feedback' collection
+            db.collection("feedback").add(feedback_data)
+            st.success("Thank you for your feedback! It has been submitted.")
+            return True
+            # Optionally clear the form
+            feedback_text = ""
+            user_email = ""
+        except Exception as e:
+            st.error(f"An error occurred while submitting feedback: {e}")
+            return False
+
+
+
     # st.caption("Your AI healthcare companion. Supporting English and Popular Indic Languages.")
     header_css = """
         <style>
