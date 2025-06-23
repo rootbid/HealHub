@@ -113,6 +113,7 @@ def add_message_to_conversation(role: str, content: str, lang_code: Optional[str
         message["lang"] = lang_code 
     st.session_state.conversation.append(message)
 
+
 def store_feedback(feedback_text, user_email, ml_generated_text, full_conversation):
     try:
         # Prepare feedback data
@@ -135,8 +136,6 @@ def store_feedback(feedback_text, user_email, ml_generated_text, full_conversati
     except Exception as e:
         st.error(f"An error occurred while submitting feedback: {e}")
         return False
-
-
 
 # --- Streamlit UI ---
 def main_ui():
