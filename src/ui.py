@@ -405,7 +405,7 @@ def main_ui():
             store_feedback("It's a good feedback", "", content, st.session_state.conversation)
     
         st.markdown("### Conversation")
-        chat_container = st.container() 
+        chat_container = st.container(height=350) 
         with chat_container:
             util = HealHubUtilities(api_key=SARVAM_API_KEY)
             user_lang = st.session_state.current_language_code
