@@ -238,7 +238,7 @@ class SarvamMNLUProcessor:
         requires_disclaimer = self._requires_medical_disclaimer(transcribed_text)
 
         # Step 2: Intent classification using Sarvam-M
-        #intent, intent_confidence = self._classify_intent(transcribed_text, source_language)
+        intent, intent_confidence = self._classify_intent(transcribed_text, source_language)
 
         # Step 3: Entity extraction
         entities = self._extract_medical_entities(transcribed_text, source_language)
@@ -403,15 +403,6 @@ Respond ONLY with JSON format:
 
             if response and "choices" in response:
                 content = response["choices"][0]["message"]["content"]
-                # Clean the response to extract JSON
-                content = content.strip()
-                if '```json' in content:
-                    content = content.split('```json')[1].split('```')[0].strip()
-                elif '```' in content:
-                    content = content.split('```')[1].strip()
-
-                result = json.loads(content)
-
                 entity_list = result.get("entities", [])
 
                 for entity_data in entity_list:
@@ -462,9 +453,7 @@ Respond ONLY with JSON format:
                             augmented_count += 1
             if augmented_count > 0:
                 print(f"ℹ️ Augmented entities with {augmented_count} symptoms from keyword matching.")
-
         # Apply spelling and phonetic correction to entity texts
-
         seen = set()
         deduped_entities = []
         for entity in entities:

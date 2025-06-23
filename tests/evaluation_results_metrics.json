@@ -1,0 +1,33 @@
+{
+  "nlu": {
+    "intent_accuracy": 0.3333333333333333,
+    "entity_recall": 0.2,
+    "entity_precision": 0.16666666666666666,
+    "emergency_detection_accuracy": 1.0,
+    "language_detection_accuracy": 1.0,
+    "baseline": {
+      "intent_accuracy": 0.0,
+      "entity_recall": 0.0,
+      "entity_precision": 0.0
+    }
+  },
+  "symptom_checker": {
+    "symptom_identification_accuracy": 1.0,
+    "follow_up_question_relevance": 0.0,
+    "assessment_quality": 0.0,
+    "triage_accuracy": 0.0,
+    "baseline": {
+      "symptom_identification_accuracy": 1.0
+    }
+  },
+  "response_generator": {
+    "response_relevance": 0.0,
+    "safety_compliance": 1.0,
+    "disclaimer_inclusion": 1.0,
+    "avg_relevance_score": 0.333,
+    "baseline": {
+      "avg_fuzzy_score": 0.0,
+      "response_relevance": 0.0
+    }
+  }
+}
