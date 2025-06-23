@@ -163,29 +163,56 @@ class SymptomChecker:
         # Using a set for existing_pending_texts to ensure unique questions in the current batch
         existing_pending_texts = set()
 
-        for symptom_data in relevant_symptoms:
-            # symptom_name from KB (e.g., "Fever", "Cough")
-            symptom_name_kb = symptom_data["symptom_name"]
-
-            # Check if we already have collected some details for this symptom.
-            # This is a simple check; a more robust way would be to track answered questions specifically.
-            if symptom_name_kb.lower() in self.collected_symptom_details and \
-               self.collected_symptom_details[symptom_name_kb.lower()]:
-                # If we have answers for this symptom, we might not need to ask initial follow-ups again.
-                # This logic might need refinement based on how conversations flow.
-                # For now, if any answer is recorded, skip re-adding its general follow-ups.
-                continue
-
-            for question_text in symptom_data.get("follow_up_questions", []):
-                if question_text not in existing_pending_texts:
-                    self.pending_follow_up_questions.append({
-                        "symptom_name": symptom_name_kb, # Use KB's canonical symptom name
-                        "question": question_text
-                    })
-                    existing_pending_texts.add(question_text)
-
+        # If KB has follow-ups, use them
+        if relevant_symptoms:
+            for symptom_data in relevant_symptoms:
+                symptom_name_kb = symptom_data["symptom_name"]
+                if symptom_name_kb.lower() in self.collected_symptom_details and \
+                   self.collected_symptom_details[symptom_name_kb.lower()]:
+                    continue
+                for question_text in symptom_data.get("follow_up_questions", []):
+                    if question_text not in existing_pending_texts:
+                        self.pending_follow_up_questions.append({
+                            "symptom_name": symptom_name_kb,
+                            "question": question_text
+                        })
+                        existing_pending_texts.add(question_text)
+        # Otherwise, always use LLM to generate follow-ups
+        if not self.pending_follow_up_questions and self.nlu_result.original_text:
+            print("ℹ️ No KB follow-ups found. Using LLM to generate follow-up questions.")
+            llm_followups = self._generate_llm_follow_ups(self.nlu_result.original_text)
+            for q in llm_followups:
+                self.pending_follow_up_questions.append({
+                    "symptom_name": "General",
+                    "question": q
+                })
         print(f"ℹ️ Prepared {len(self.pending_follow_up_questions)} follow-up questions.")
 
+    def _generate_llm_follow_ups(self, user_query: str) -> list:
+        """
+        Uses the LLM to generate relevant follow-up questions for the user's query.
+        """
+        prompt = (
+            "You are a health assistant. Given the following user query, generate 3-5 relevant, concise follow-up questions "
+            "that would help a doctor better understand the user's symptoms or health concern. "
+            "Do not ask for personal information. Only output a JSON array of questions.\n\n"
+            f"User query: {user_query}\nQuestions:"
+        )
+        try:
+            response = self.sarvam_client.chat_completion(
+                messages=[{"role": "system", "content": prompt}],
+                temperature=0.5, max_tokens=200
+            )
+            content = response["choices"][0]["message"]["content"]
+            # Try to parse as JSON array
+            import json
+            questions = json.loads(content)
+            if isinstance(questions, list):
+                return [str(q) for q in questions if isinstance(q, str)]
+        except Exception as e:
+            print(f"⚠️ LLM follow-up generation failed: {e}")
+        # Fallback
+        return ["Can you provide more details about your symptoms?", "When did your symptoms start?", "Have you noticed any changes or patterns?"]
 
     def get_next_question(self) -> Optional[Dict[str, str]]:
         '''
