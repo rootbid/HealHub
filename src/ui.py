@@ -9,6 +9,7 @@ import re
 from streamlit_mic_recorder import mic_recorder
 import soundfile as sf
 import io
+from datetime import datetime
 
 # Adjust import paths
 try:
@@ -82,6 +83,10 @@ def add_message_to_conversation(role: str, content: str, lang_code: Optional[str
         message["lang"] = lang_code 
     st.session_state.conversation.append(message)
 
+    # To reset feedback form after each new assistant response
+    if role == "assistant":
+        st.session_state.feedback_submitted = False
+
 # --- Streamlit UI ---
 def main_ui():
     st.set_page_config(page_title="HealHub Assistant", layout="wide", initial_sidebar_state="collapsed")
@@ -128,55 +133,8 @@ def main_ui():
 
         current_lang_code_for_query = st.session_state.current_language_code
         spinner_placeholder = st.empty()
-        
-        if st.session_state.captured_audio_data is not None:
-            with spinner_placeholder.info("Cleaning the captured audio..."):
-                with io.BytesIO(st.session_state.captured_audio_data) as buffer:
-                    data, sr = sf.read(buffer)
-                # Clean audio
-                cleaner = AudioCleaner()
-                cleaned_data, cleaned_sr = cleaner.get_cleaned_audio(data, sr)
-            ### To test captured and cleaned audio
-            # audio_buffer = io.BytesIO()
-            # sf.write(audio_buffer, cleaned_data, cleaned_sr, format='WAV')
-            # audio_buffer.seek(0)
-            # st.audio(audio_buffer.getvalue(), format="audio/wav")
-            st.session_state.cleaned_audio_data = cleaned_data
-            st.session_state.captured_audio_sample_rate = cleaned_sr
-            st.session_state.voice_input_stage = "processing_stt"
-        
 
-        if st.session_state.voice_input_stage == "processing_stt":
-            if st.session_state.cleaned_audio_data is not None:
-                util = HealHubUtilities(api_key=SARVAM_API_KEY)
-                lang_for_stt = st.session_state.current_language_code 
-                try:
-                    with spinner_placeholder.info("Transcribing audio..."):
-                        stt_result = util.transcribe_audio(
-                            st.session_state.cleaned_audio_data, sample_rate=st.session_state.captured_audio_sample_rate, source_language=lang_for_stt
-                        )
-                    transcribed_text = stt_result.get("transcription")
-                    if lang_for_stt != stt_result.get("language_detected"):
-                        if lang_for_stt == "en-IN":
-                            transcribed_text = util.translate_text_to_english(transcribed_text)
-                        else:
-                            transcribed_text = util.translate_text(transcribed_text, lang_for_stt)
-                    if transcribed_text and transcribed_text.strip():
-                        add_message_to_conversation("user", transcribed_text, lang_code=lang_for_stt.split('-')[0])
-                        process_and_display_response(transcribed_text, lang_for_stt) 
-                    else:
-                        add_message_to_conversation("system", "⚠️ STT failed to transcribe audio or returned empty. Please try again.")
-                except Exception as e:
-                    st.error(f"STT Error: {e}")
-                    add_message_to_conversation("system", f"Sorry, an error occurred during voice transcription. Please try again. (Details: {e})")
-                st.session_state.captured_audio_data = None 
-                st.session_state.cleaned_audio_data = None 
-                st.session_state.voice_input_stage = None 
-                st.rerun()
-            else: 
-                st.session_state.voice_input_stage = None
-                st.rerun()
-
+        # All functions which needs time to process and will utilize spinner placeholder for loading screen
         def process_and_display_response(user_query_text: str, lang_code: str):
             if not SARVAM_API_KEY:
                 st.error("API Key not configured.")
@@ -323,6 +281,53 @@ def main_ui():
                 st.session_state.pending_symptom_question_data = None
             st.session_state.voice_input_stage = None # Reset voice stage
 
+        # Capture and Process audio
+        if st.session_state.captured_audio_data is not None:
+            with spinner_placeholder.info("Cleaning the captured audio..."):
+                with io.BytesIO(st.session_state.captured_audio_data) as buffer:
+                    data, sr = sf.read(buffer)
+                # Clean audio
+                cleaner = AudioCleaner()
+                cleaned_data, cleaned_sr = cleaner.get_cleaned_audio(data, sr)
+            ### To test captured and cleaned audio
+            # audio_buffer = io.BytesIO()
+            # sf.write(audio_buffer, cleaned_data, cleaned_sr, format='WAV')
+            # audio_buffer.seek(0)
+            # st.audio(audio_buffer.getvalue(), format="audio/wav")
+            st.session_state.cleaned_audio_data = cleaned_data
+            st.session_state.captured_audio_sample_rate = cleaned_sr
+            st.session_state.voice_input_stage = "processing_stt"
+        
+        if st.session_state.voice_input_stage == "processing_stt":
+            if st.session_state.cleaned_audio_data is not None:
+                util = HealHubUtilities(api_key=SARVAM_API_KEY)
+                lang_for_stt = st.session_state.current_language_code 
+                try:
+                    with spinner_placeholder.info("Transcribing audio..."):
+                        stt_result = util.transcribe_audio(
+                            st.session_state.cleaned_audio_data, sample_rate=st.session_state.captured_audio_sample_rate, source_language=lang_for_stt
+                        )
+                    transcribed_text = stt_result.get("transcription")
+                    if lang_for_stt != stt_result.get("language_detected"):
+                        if lang_for_stt == "en-IN":
+                            transcribed_text = util.translate_text_to_english(transcribed_text)
+                        else:
+                            transcribed_text = util.translate_text(transcribed_text, lang_for_stt)
+                    if transcribed_text and transcribed_text.strip():
+                        add_message_to_conversation("user", transcribed_text, lang_code=lang_for_stt.split('-')[0])
+                        process_and_display_response(transcribed_text, lang_for_stt) 
+                    else:
+                        add_message_to_conversation("system", "⚠️ STT failed to transcribe audio or returned empty. Please try again.")
+                except Exception as e:
+                    st.error(f"STT Error: {e}")
+                    add_message_to_conversation("system", f"Sorry, an error occurred during voice transcription. Please try again. (Details: {e})")
+                st.session_state.captured_audio_data = None 
+                st.session_state.cleaned_audio_data = None 
+                st.session_state.voice_input_stage = None 
+                st.rerun()
+            else: 
+                st.session_state.voice_input_stage = None
+                st.rerun()
 
     with col2:
         st.markdown("### Conversation")
@@ -402,6 +407,64 @@ def main_ui():
             st.rerun()
     # The old `if send_button and user_query_text_from_area:` block is now removed,
     # as its logic is handled by the handle_text_submission callback.
+
+    # --- Feedback Button and Form ---
+    if any(
+        msg["role"] == "assistant"
+        and not msg.get("content", "").strip().startswith("Regarding ")
+        for msg in st.session_state.conversation
+    ):
+        feedback_section()
+
+def feedback_section():
+    st.markdown("---")
+    st.markdown("### 🙋 Was this answer helpful?")
+
+    if "feedback_submitted" not in st.session_state:
+        st.session_state.feedback_submitted = False
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        if st.button("👍 Yes", key="thumbs_up"):
+            feedback_data = {
+                "timestamp": str(datetime.now()),
+                "feedback": "thumbs_up"
+            }
+            os.makedirs("feedback", exist_ok=True)
+            with open("feedback/feedback_log.jsonl", "a", encoding="utf-8") as f:
+                f.write(json.dumps(feedback_data) + "\n")
+            st.success("Thanks for your feedback!")
+            st.session_state.feedback_submitted = True
+
+    with col2:
+        if st.button("👎 No", key="thumbs_down"):
+            feedback_data = {
+                "timestamp": str(datetime.now()),
+                "feedback": "thumbs_down"
+            }
+            os.makedirs("feedback", exist_ok=True)
+            with open("feedback/feedback_log.jsonl", "a", encoding="utf-8") as f:
+                f.write(json.dumps(feedback_data) + "\n")
+            st.info("Sorry to hear that. Please tell us more below!")
+            st.session_state.feedback_submitted = True
+
+    if not st.session_state.feedback_submitted:
+        st.markdown("#### Additional comments (optional):")
+        with st.form(key='feedback_form'):
+            feedback_text = st.text_area("Your feedback", height=100)
+            submitted = st.form_submit_button("Submit Feedback")
+            if submitted and feedback_text.strip():
+                feedback_data = {
+                    "timestamp": str(datetime.now()),
+                    "feedback": "text",
+                    "text": feedback_text.strip()
+                }
+                os.makedirs("feedback", exist_ok=True)
+                with open("feedback/feedback_log.jsonl", "a", encoding="utf-8") as f:
+                    f.write(json.dumps(feedback_data) + "\n")
+                st.success("Thank you for your detailed feedback!")
+                st.session_state.feedback_submitted = True
 
 if __name__ == "__main__":
     main_ui()
