@@ -2,7 +2,7 @@
   {
     "input_text": "मुझे बुखार और सिरदर्द है",
     "language": "hi-IN",
-    "expected_intent": "GENERAL_QUERY",
+    "expected_intent": "SYMPTOM_QUERY",
     "expected_entities": [
       { "text": "बुखार", "type": "symptom" },
       { "text": "सिरदर्द", "type": "symptom" }
@@ -22,7 +22,7 @@
   {
     "input_text": "Tell me about hypertension.",
     "language": "en-IN",
-    "expected_intent": "GENERAL_QUERY",
+    "expected_intent": "GENERAL_HEALTH",
     "expected_entities": [{ "text": "hypertension", "type": "condition" }],
     "is_emergency": false
   }
