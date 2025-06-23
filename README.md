@@ -193,3 +193,4 @@ Several enhancements could further improve the application:
 *   **Enhanced NLU for Mixed Languages**: Improve handling of queries that mix English with Indian languages (Hinglish, Tanglish, etc.).
 *   **Refined Prompt Engineering**: Continuously refine system prompts for both general queries and the symptom checker to improve accuracy, tone, and safety of responses.
 *   **Multi-turn Symptom Checking**: Develop a more dynamic multi-turn conversational ability for the symptom checker beyond the current scripted follow-up questions.
+*   **UI/UX Improvements**: Enhance the Streamlit UI or develop a more robust mobile interface for wider accessibility.
