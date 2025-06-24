@@ -20,6 +20,7 @@ try:
     from src.response_generator import HealHubResponseGenerator
     from src.symptom_checker import SymptomChecker
     from src.audio_capture import AudioCleaner # Import audio modules
+    from ocr_utils import advanced_image_to_text, get_text_with_confidence                                                                      
     from src.utils import HealHubUtilities
 except ImportError:
     import sys
@@ -28,6 +29,7 @@ except ImportError:
     from src.response_generator import HealHubResponseGenerator
     from src.symptom_checker import SymptomChecker
     from src.audio_capture import AudioCleaner
+    from ocr_utils import advanced_image_to_text, get_text_with_confidence                                                                      
     from src.utils import HealHubUtilities
 
 # --- Environment and API Key Setup ---
@@ -527,8 +529,8 @@ def main_ui():
         
         # user_input = st.text_input("Type your query or use voice:", key="user_input")
         
-        COLUMN_WIDTHS = [1, 1]
-        col21, col22 = st.columns(COLUMN_WIDTHS)
+        COLUMN_WIDTHS = [1, 1, 1]
+        col21, col22, col23 = st.columns(COLUMN_WIDTHS)
 
         with col21:
             st.button(
@@ -548,7 +550,27 @@ def main_ui():
                 format="wav",    # Or "webm" if you prefer
                 key="voice_recorder"
             )
-        
+         # added by sharmila   
+        with col23:
+            # Upload file (but don't process it yet)
+            uploaded_file = st.file_uploader(" 📂 Choose a file", type=["txt", "csv", "png", "jpg", "pdf"], key="file_uploader")
+
+                # Show a button to manually trigger the file processing
+            if st.button("Upload File"):
+                if uploaded_file is not None:
+                    # Read file content as bytes
+                    file_bytes = uploaded_file.read()
+                    try:
+                    # Try decoding as UTF-8
+                        text = file_bytes.decode('utf-8')
+                    except UnicodeDecodeError:
+                    # If decoding fails, show error and let user try another encoding
+                        st.error("Could not decode file as UTF-8. Please check the file encoding.")
+                    else:
+                    # Display the decoded text
+                        st.text_area("Decoded Text Output", text, height=300)
+                else:
+                        st.warning("No file selected. Please browse and select a file first.")
         if audio:
             st.session_state.captured_audio_data = audio['bytes']
             st.rerun()
