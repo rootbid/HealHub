@@ -1,6 +1,7 @@
 # ocr_utils.py
 import pytesseract
 from PIL import Image
+from PySide2 import QtWidgets
 import os
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -16,9 +17,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.image_path = ""
         
     def advanced_image_to_text(image_path, language='eng', config=''):
-    """
-    Advanced OCR with language and configuration options
-    """
+        """
+        Advanced OCR with language and configuration options
+        """
         try:
             if not os.path.exists(image_path):
                 return f"Error: File '{image_path}' not found"
@@ -43,7 +44,7 @@ class MainWindow(QtWidgets.QMainWindow):
             return f"Error: {e}"
 
     def get_text_with_confidence(image_path):
-    """Get text with confidence scores"""
+        """Get text with confidence scores"""
         try:
             img = Image.open(image_path)
             data = pytesseract.image_to_data(img, output_type=pytesseract.Output.DICT)
