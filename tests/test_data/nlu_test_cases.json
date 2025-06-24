@@ -25,5 +25,326 @@
     "expected_intent": "GENERAL_HEALTH",
     "expected_entities": [{ "text": "hypertension", "type": "condition" }],
     "is_emergency": false
+  },
+   {
+    "input_text": "मेरे पेट में दो दिन से दर्द हो रहा है",
+    "language": "hi-IN",
+    "expected_intent": "SYMPTOM_QUERY",
+    "expected_entities": [
+      { "text": "पेट", "type": "body_part" },
+      { "text": "दो दिन से", "type": "duration" },
+      { "text": "दर्द", "type": "symptom" }
+    ],
+    "is_emergency": false
+  },
+  {
+    "input_text": "I need to book an appointment with a cardiologist.",
+    "language": "en-IN",
+    "expected_intent": "APPOINTMENT_REQUEST",
+    "expected_entities": [{ "text": "cardiologist", "type": "doctor_specialty" }],
+    "is_emergency": false
+  },
+  {
+    "input_text": "मधुमेह के क्या लक्षण हैं?",
+    "language": "hi-IN",
+    "expected_intent": "GENERAL_HEALTH",
+    "expected_entities": [{ "text": "मधुमेह", "type": "condition" }],
+    "is_emergency": false
+  },
+  {
+    "input_text": "I feel dizzy and have blurred vision.",
+    "language": "en-IN",
+    "expected_intent": "SYMPTOM_QUERY",
+    "expected_entities": [
+        { "text": "dizzy", "type": "symptom" },
+        { "text": "blurred vision", "type": "symptom" }
+    ],
+    "is_emergency": false
+  },
+  {
+    "input_text": "मेरी छाती में बहुत तेज दर्द हो रहा है",
+    "language": "hi-IN",
+    "expected_intent": "EMERGENCY",
+    "expected_entities": [{ "text": "छाती में बहुत तेज दर्द", "type": "symptom" }],
+    "is_emergency": true
+  },
+  {
+    "input_text": "Can I take paracetamol for a fever?",
+    "language": "en-IN",
+    "expected_intent": "MEDICATION_QUERY",
+    "expected_entities": [
+        { "text": "paracetamol", "type": "medication" },
+        { "text": "fever", "type": "symptom" }
+    ],
+    "is_emergency": false
+  },
+  {
+    "input_text": "नमस्ते",
+    "language": "hi-IN",
+    "expected_intent": "GREETING",
+    "expected_entities": [],
+    "is_emergency": false
+  },
+  {
+    "input_text": "Okay, thank you, bye.",
+    "language": "en-IN",
+    "expected_intent": "FAREWELL",
+    "expected_entities": [],
+    "is_emergency": false
+  },
+  {
+    "input_text": "Mujhe weakness feel ho rahi hai since yesterday.",
+    "language": "en-IN",
+    "expected_intent": "SYMPTOM_QUERY",
+    "expected_entities": [
+      { "text": "weakness", "type": "symptom" },
+      { "text": "since yesterday", "type": "relative_time" }
+    ],
+    "is_emergency": false
+  },
+  {
+    "input_text": "I am not feeling well.",
+    "language": "en-IN",
+    "expected_intent": "SYMPTOM_QUERY",
+    "expected_entities": [],
+    "is_emergency": false
+  },
+  {
+    "input_text": "हाँ, बिलकुल यही।",
+    "language": "hi-IN",
+    "expected_intent": "AFFIRMATION",
+    "expected_entities": [],
+    "is_emergency": false
+  },
+  {
+    "input_text": "My child fell and is unconscious.",
+    "language": "en-IN",
+    "expected_intent": "EMERGENCY",
+    "expected_entities": [
+        { "text": "fell", "type": "injury" },
+        { "text": "unconscious", "type": "symptom" }
+    ],
+    "is_emergency": true
+  },
+  {
+    "input_text": "क्या क्रोसिन लेना सुरक्षित है?",
+    "language": "hi-IN",
+    "expected_intent": "MEDICATION_QUERY",
+    "expected_entities": [{ "text": "क्रोसिन", "type": "medication" }],
+    "is_emergency": false
+  },
+    {
+    "input_text": "There is a rash on my leg.",
+    "language": "en-IN",
+    "expected_intent": "SYMPTOM_QUERY",
+    "expected_entities": [
+      { "text": "rash", "type": "symptom" },
+      { "text": "leg", "type": "body_part" }
+    ],
+    "is_emergency": false
+  },
+  {
+    "input_text": "नहीं, यह समस्या नहीं है।",
+    "language": "hi-IN",
+    "expected_intent": "DENIAL",
+    "expected_entities": [],
+    "is_emergency": false
+  },
+  {
+    "input_text": "मुझे डायबिटीज के बारे में जानकारी चाहिए",
+    "language": "hi-IN",
+    "expected_intent": "GENERAL_HEALTH",
+    "expected_entities": [{ "text": "डायबिटीज", "type": "condition" }],
+    "is_emergency": false
+  },
+  {
+    "input_text": "I need to book an appointment with a cardiologist",
+    "language": "en-IN",
+    "expected_intent": "APPOINTMENT_BOOKING",
+    "expected_entities": [{ "text": "cardiologist", "type": "specialization" }],
+    "is_emergency": false
+  },
+  {
+    "input_text": "मैं कल से पेट में दर्द हो रहा है",
+    "language": "hi-IN",
+    "expected_intent": "SYMPTOM_QUERY",
+    "expected_entities": [
+      { "text": "पेट में दर्द", "type": "symptom" },
+      { "text": "कल से", "type": "duration" }
+    ],
+    "is_emergency": false
+  },
+  {
+    "input_text": "I'm having severe allergic reaction with swelling",
+    "language": "en-IN",
+    "expected_intent": "EMERGENCY",
+    "expected_entities": [
+      { "text": "allergic reaction", "type": "symptom" },
+      { "text": "swelling", "type": "symptom" },
+      { "text": "severe", "type": "severity" }
+    ],
+    "is_emergency": true
+  },
+  {
+    "input_text": "What medications are used for diabetes?",
+    "language": "en-IN",
+    "expected_intent": "MEDICATION_QUERY",
+    "expected_entities": [{ "text": "diabetes", "type": "condition" }],
+    "is_emergency": false
+  },
+  {
+    "input_text": "मेरी उम्र 45 साल है और मुझे जोड़ों में दर्द होता है",
+    "language": "hi-IN",
+    "expected_intent": "SYMPTOM_QUERY",
+    "expected_entities": [
+      { "text": "45 साल", "type": "age" },
+      { "text": "जोड़ों में दर्द", "type": "symptom" }
+    ],
+    "is_emergency": false
+  },
+  {
+    "input_text": "I think I'm having a heart attack",
+    "language": "en-IN",
+    "expected_intent": "EMERGENCY",
+    "expected_entities": [{ "text": "heart attack", "type": "condition" }],
+    "is_emergency": true
+  },
+  {
+    "input_text": "Can you recommend a good dermatologist near me?",
+    "language": "en-IN",
+    "expected_intent": "DOCTOR_RECOMMENDATION",
+    "expected_entities": [
+      { "text": "dermatologist", "type": "specialization" },
+      { "text": "near me", "type": "location" }
+    ],
+    "is_emergency": false
+  },
+  {
+    "input_text": "मुझे खांसी और गले में खराश है 3 दिन से",
+    "language": "hi-IN",
+    "expected_intent": "SYMPTOM_QUERY",
+    "expected_entities": [
+      { "text": "खांसी", "type": "symptom" },
+      { "text": "गले में खराश", "type": "symptom" },
+      { "text": "3 दिन से", "type": "duration" }
+    ],
+    "is_emergency": false
+  },
+  {
+    "input_text": "What are the side effects of paracetamol?",
+    "language": "en-IN",
+    "expected_intent": "MEDICATION_QUERY",
+    "expected_entities": [{ "text": "paracetamol", "type": "medication" }],
+    "is_emergency": false
+  },
+  {
+    "input_text": "I'm bleeding heavily and feeling dizzy",
+    "language": "en-IN",
+    "expected_intent": "EMERGENCY",
+    "expected_entities": [
+      { "text": "bleeding heavily", "type": "symptom" },
+      { "text": "dizzy", "type": "symptom" }
+    ],
+    "is_emergency": true
+  },
+  {
+    "input_text": "मैं गर्भवती हूं और मुझे उल्टी हो रही है",
+    "language": "hi-IN",
+    "expected_intent": "PREGNANCY_QUERY",
+    "expected_entities": [
+      { "text": "गर्भवती", "type": "condition" },
+      { "text": "उल्टी", "type": "symptom" }
+    ],
+    "is_emergency": false
+  },
+  {
+    "input_text": "How much water should I drink daily?",
+    "language": "en-IN",
+    "expected_intent": "LIFESTYLE_QUERY",
+    "expected_entities": [{ "text": "water", "type": "lifestyle" }],
+    "is_emergency": false
+  },
+  {
+    "input_text": "मुझे अपनी दवा का समय याद रखने में मदद चाहिए",
+    "language": "hi-IN",
+    "expected_intent": "MEDICATION_REMINDER",
+    "expected_entities": [{ "text": "दवा का समय", "type": "medication_schedule" }],
+    "is_emergency": false
+  },
+  {
+    "input_text": "I have been unconscious for few minutes",
+    "language": "en-IN",
+    "expected_intent": "EMERGENCY",
+    "expected_entities": [
+      { "text": "unconscious", "type": "symptom" },
+      { "text": "few minutes", "type": "duration" }
+    ],
+    "is_emergency": true
+  },
+  {
+    "input_text": "What foods should I avoid with high cholesterol?",
+    "language": "en-IN",
+    "expected_intent": "DIET_QUERY",
+    "expected_entities": [{ "text": "high cholesterol", "type": "condition" }],
+    "is_emergency": false
+  },
+  {
+    "input_text": "मेरे बच्चे को बुखार है 102 डिग्री",
+    "language": "hi-IN",
+    "expected_intent": "CHILD_HEALTH",
+    "expected_entities": [
+      { "text": "बच्चे", "type": "person" },
+      { "text": "बुखार", "type": "symptom" },
+      { "text": "102 डिग्री", "type": "measurement" }
+    ],
+    "is_emergency": false
+  },
+  {
+    "input_text": "My elderly father fell and hit his head",
+    "language": "en-IN",
+    "expected_intent": "EMERGENCY",
+    "expected_entities": [
+      { "text": "elderly father", "type": "person" },
+      { "text": "fell", "type": "incident" },
+      { "text": "hit his head", "type": "injury" }
+    ],
+    "is_emergency": true
+  },
+  {
+    "input_text": "मुझे नींद नहीं आ रही है कई दिनों से",
+    "language": "hi-IN",
+    "expected_intent": "SYMPTOM_QUERY",
+    "expected_entities": [
+      { "text": "नींद नहीं आ रही", "type": "symptom" },
+      { "text": "कई दिनों से", "type": "duration" }
+    ],
+    "is_emergency": false
+  },
+  {
+    "input_text": "Can you help me understand my blood test results?",
+    "language": "en-IN",
+    "expected_intent": "TEST_INTERPRETATION",
+    "expected_entities": [{ "text": "blood test", "type": "test" }],
+    "is_emergency": false
+  },
+  {
+    "input_text": "I'm having trouble breathing after taking medication",
+    "language": "en-IN",
+    "expected_intent": "EMERGENCY",
+    "expected_entities": [
+      { "text": "trouble breathing", "type": "symptom" },
+      { "text": "medication", "type": "medication" }
+    ],
+    "is_emergency": true
+  },
+  {
+    "input_text": "मुझे वजन कम करने के लिए डाइट प्लान चाहिए",
+    "language": "hi-IN",
+    "expected_intent": "DIET_QUERY",
+    "expected_entities": [
+      { "text": "वजन कम करने", "type": "goal" },
+      { "text": "डाइट प्लान", "type": "lifestyle" }
+    ],
+    "is_emergency": false
   }
 ]
