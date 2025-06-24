@@ -153,33 +153,13 @@ class SymptomChecker:
 
     def prepare_follow_up_questions(self):
         '''
-        Prepares a list of follow-up questions for relevant symptoms.
-        Questions are not asked if details for that symptom are already collected
-        or if the question was already posed in the current pending list.
+        Prepares a list of follow-up questions for the user's query.
+        Always uses the LLM to generate follow-up questions, ignoring the KB.
         '''
-        self.pending_follow_up_questions = [] # Clear previous pending questions
-        relevant_symptoms = self.identify_relevant_symptoms()
+        self.pending_follow_up_questions = []  # Clear previous pending questions
 
-        # Using a set for existing_pending_texts to ensure unique questions in the current batch
-        existing_pending_texts = set()
-
-        # If KB has follow-ups, use them
-        if relevant_symptoms:
-            for symptom_data in relevant_symptoms:
-                symptom_name_kb = symptom_data["symptom_name"]
-                if symptom_name_kb.lower() in self.collected_symptom_details and \
-                   self.collected_symptom_details[symptom_name_kb.lower()]:
-                    continue
-                for question_text in symptom_data.get("follow_up_questions", []):
-                    if question_text not in existing_pending_texts:
-                        self.pending_follow_up_questions.append({
-                            "symptom_name": symptom_name_kb,
-                            "question": question_text
-                        })
-                        existing_pending_texts.add(question_text)
-        # Otherwise, always use LLM to generate follow-ups
-        if not self.pending_follow_up_questions and self.nlu_result.original_text:
-            print("ℹ️ No KB follow-ups found. Using LLM to generate follow-up questions.")
+        if self.nlu_result.original_text:
+            print("ℹ️ Using LLM to generate follow-up questions (KB ignored).")
             llm_followups = self._generate_llm_follow_ups(self.nlu_result.original_text)
             for q in llm_followups:
                 self.pending_follow_up_questions.append({
