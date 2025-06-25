@@ -136,6 +136,8 @@ The application includes an interactive symptom checker to help users understand
     ```
     *(Obtainable from the Sarvam AI dashboard).*
 
+ *  Create a `.streamlit/secrets.toml` file in the project root by copying the contents of your Firebase service account JSON (downloaded from the [Firebase Console](https://console.firebase.google.com/)) under a `[FIREBASE]` section.
+
 ### Running the Application (Streamlit UI)
 The primary way to interact with the application is through the Streamlit UI.
 ```bash
