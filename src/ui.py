@@ -310,7 +310,7 @@ def main_ui():
                 with spinner_placeholder.info("🔬 Generating preliminary assessment..."):
                     assessment = st.session_state.symptom_checker_instance.generate_preliminary_assessment()
                     try:
-                        assessment_str = f"### {util.translate_text('Preliminary Health Assessment', user_lang)}:\n\n"
+                        assessment_str = f"<h4> {util.translate_text('Preliminary Health Assessment', user_lang)}:</h4>\n\n"
                         assessment_str += f"**{util.translate_text('Summary', user_lang)}:** {util.translate_text(assessment.get('assessment_summary', 'N/A'), user_lang)}\n\n"
                         assessment_str += f"**{util.translate_text('Suggested Severity', user_lang)}:** {util.translate_text(assessment.get('suggested_severity', 'N/A'), user_lang)}\n\n"
                         assessment_str += f"**{util.translate_text('Recommended Next Steps', user_lang)}:**\n"
@@ -454,10 +454,10 @@ def main_ui():
                     """, unsafe_allow_html=True)
                     clutter, col1, col2, col3, clutter = st.columns([1.75, 1, 1, 1, 30])
                     audio_bytes = None
+                    good_feedback = False
                     with col1:
                         if st.button("👍", key=f"good_{idx}", type="tertiary", help="Good response"):
-                            handle_good_feedback(idx, content)
-
+                            good_feedback = True
                     with col2:
                         if st.button("👎", key=f"bad_{idx}", type="tertiary", help="Bad response"):
                             st.session_state[f"negetive_feedback_{idx}"] = True
@@ -467,6 +467,8 @@ def main_ui():
                             with spinner_placeholder.info("Synthesizing speech..."):
                                 audio_bytes = util.synthesize_speech(content, user_lang)
                             
+                    if good_feedback is True:
+                        handle_good_feedback(idx, content)
                     if audio_bytes is not None:
                         st.audio(audio_bytes, format="audio/wav")
                     if st.session_state.get(f"negetive_feedback_{idx}", False):
@@ -520,10 +522,11 @@ def main_ui():
         
         # Define column width ratios for the input area, send button, and voice recording button
         
-        input_label = "Type your answer here..." if st.session_state.symptom_checker_active and st.session_state.pending_symptom_question_data else "Type your health query here..."
+        input_label = "Type your answer here...(Ctrl.+Enter to send)" if st.session_state.symptom_checker_active and st.session_state.pending_symptom_question_data else "Type your health query here...(Ctrl.+Enter to send)"
     
         # Text area widget - its current value is stored in st.session_state.text_query_input_area due to its key
-        st.text_area(input_label, height=70, key="text_query_input_area", disabled=is_recording)
+        st.text_area(input_label, height=70, key="text_query_input_area", disabled=is_recording, on_change=handle_text_submission)
+        # st.text_input(input_label, key="text_query_input_area", disabled=is_recording, on_change=handle_text_submission)
         
         # user_input = st.text_input("Type your query or use voice:", key="user_input")
         
