@@ -26,7 +26,7 @@
     "expected_entities": [{ "text": "hypertension", "type": "condition" }],
     "is_emergency": false
   },
-   {
+  {
     "input_text": "मेरे पेट में दो दिन से दर्द हो रहा है",
     "language": "hi-IN",
     "expected_intent": "SYMPTOM_QUERY",
